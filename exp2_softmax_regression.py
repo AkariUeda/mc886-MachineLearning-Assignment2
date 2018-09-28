@@ -6,12 +6,13 @@ from random import randrange, uniform
 from functions import *
 import get_dataset
 
+
 ##
 ## REGRESSAO SOFTMAX COM REDE NEURAL DE UMA CAMADA
 ##
 
 def main():
-    get_dataset.main()
+    train_set, valid_set, train_labels, valid_labels = get_dataset.main()
 
     neural_softmax = NeuralNetwork()
 
