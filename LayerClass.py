@@ -12,23 +12,11 @@ class Layer:
         H = self.activation
         return np.mean(np.subtract(np.multiply(np.multiply(-1, Y),np.log(H)),np.multiply(np.subtract(1, Y),np.log(np.subtract(1,H)))))
 
-    def back(camadas, X, y, learning_rate):
-        out = len(camadas)-1
-        inp = 0
-        camadas[out].error = np.subtract(y,camadas[out].activation)
-        camadas[out].delta = camadas[out].error*sigmoidDerivative(camadas[out].activation)
-
-        for i in range(len(camadas)-2,0,-1):
-            print(i)
-            camadas[i].error = camadas[i+1].delta.dot(camadas[i].weights)
-            camadas[i].delta = camadas[i].error*sigmoidDerivative(camadas[i].activation)
-
-        for i in range(len(camadas)-1,0,-1):
-            camadas[i].weights += learning_rate*camadas[i-1].activation.T.dot(camadas[i].delta)
-
 class NeuralNetwork:
     def __init__(self, random, input_size, output_size):
         self.camadas = []
+	self.functions = []
+	self.derivatives = []
 
     def forward(self,X,y):
         out = len(self.camadas)-1
@@ -37,6 +25,22 @@ class NeuralNetwork:
         for i in range(1,len(self.camadas)):
             self.camadas[i].activation = sigmoid(self.camadas[i-1].activation.dot(self.camadas[i].weights))
         return self.camadas[out].activation
+
+
+    def backward(self, camadas, X, y, learning_rate):
+        out = len(camadas)-1
+        inp = 0
+        self.camadas[out].error = np.subtract(y,self.camadas[out].activation)
+        self.camadas[out].delta = self.camadas[out].error*self.derivatives[out](self.camadas[out].activation)
+
+        for i in range(len(camadas)-2,0,-1):
+            print(i)
+            self.camadas[i].error = self.camadas[i+1].delta.dot(self.camadas[i].weights)
+            self.camadas[i].delta = self.camadas[i].error*self.derivatives[i](self.camadas[i].activation)
+
+        for i in range(len(camadas)-1,0,-1):
+            self.camadas[i].weights += learning_rate*self.camadas[i-1].activation.T.dot(self.camadas[i].delta)
+
 
     def predict(self,X,y):
         camadas = np.copy(self.camadas)
@@ -56,7 +60,7 @@ class NeuralNetwork:
     def train(self,X,y,learning_rate,iteracoes, printacc):
         for i in range(0, iteracoes):
             self.forward(self.camadas,X,y)
-            self.back(self.camadas,X,y,learning_rate)
+            self.backward(self.camadas,X,y,learning_rate)
             if printacc:
                 preds = np.copy(self.camadas[1].activation)
                 preds[preds > 0.5] = 1
