@@ -30,6 +30,14 @@ def sigmoidDerivative(x,y):
 def softmax(X):
     exps = np.exp(X - np.max(X))
     return exps / np.sum(exps)
+    
+def softmax_derivative(X,y):
+    res = []
+    exps = np.sum(np.exp(X))
+    for i in range(0, len(X)):
+        r = X[i]*(exps - np.exp(X[i])) / np.power(exps,2)
+        res.append(r)
+    return res
 
 
 def cross_entropy(X,y):

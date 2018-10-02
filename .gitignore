@@ -4,3 +4,9 @@ fashion-mnist_train-set.csv
 fashion-mnist_valid-set.csv
 fashion-mnist_train-labels.csv
 fashion-mnist_valid-labels.csv
+toy_fashion-mnist_train-labels.csv
+toy_fashion-mnist_train-set.csv
+toy_fashion-mnist_train.csv
+toy_fashion-mnist_valid-labels.csv
+toy_fashion-mnist_valid-set.csv
+

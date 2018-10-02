@@ -11,6 +11,7 @@ class Layer:
             self.bias = np.random.uniform(-0.05,0.05,(output_size,1))
         else:
             self.weights = np.identity(input_size)
+
             self.bias = np.zeros(output_size)
 
 
@@ -21,28 +22,32 @@ class NeuralNetwork:
         self.derivatives = []
 
     def loss(self,H,Y):
-        return np.mean(np.subtract(np.multiply(np.multiply(-1, Y),np.log(H)),np.multiply(np.subtract(1, Y),np.log(np.subtract(1,H)))))
-
+        return -1* np.add(np.multiply(Y,(1/H)) , np.multiply(np.subtract(1, Y),(1/np.subtract(1,H))))
     def forward(self,X):
         out = len(self.camadas)-1
         inp = 0
         self.camadas[inp].activation = X
+        #print(self.camadas[inp].activation[0])
         for i in range(1,len(self.camadas)):
-            self.camadas[i].activation = np.add(self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights)),self.camadas[i].bias.T)
+            #self.camadas[i].activation = np.add(self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights)),self.camadas[i].bias.T)
+            self.camadas[i].activation = self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights))
+            print(self.camadas[i].activation[0])
         return self.camadas[out].activation
+
 
     def backward(self,  X, y, learning_rate):
         out = len(self.camadas)-1
         inp = 0
-        self.camadas[out].error = cross_entropy(self.camadas[out].activation,y)
+        #print(self.camadas[out].weights[0])
+        self.camadas[out].error = self.functions[out](self.camadas[out].activation)
         self.camadas[out].delta = self.camadas[out].error*self.derivatives[out](self.camadas[out].activation, y)
-
         for i in range(len(self.camadas)-2,0,-1):
-            print(i)
             self.camadas[i].error = self.camadas[i+1].delta.dot(self.camadas[i].weights)
             self.camadas[i].delta = self.camadas[i].error*self.derivatives[i](self.camadas[i].activation)
         for i in range(len(self.camadas)-1,0,-1):
-            self.camadas[i].weights += learning_rate*self.camadas[i-1].activation.T.dot(self.camadas[i].delta)
+            w = learning_rate*self.camadas[i-1].activation.T.dot(self.camadas[i].delta)
+            #print(str(self.camadas[i].delta[0][0])+" * "+str(self.camadas[i-1].activation.T[0][0]))
+            self.camadas[i].weights += w
 
     def predict(self,X,y):
         camadas = np.copy(self.camadas)
@@ -54,7 +59,7 @@ class NeuralNetwork:
         output = camadas[out].activation
         preds = camadas[out].activation
         preds[preds > 0.5] = 1
-        preds[preds <=0.5] = 0
+        preds[preds <= 0.5] = 0
         acc = sum(preds == y)
         print("Acurácia validação: "+str(acc/len(y)))
 
