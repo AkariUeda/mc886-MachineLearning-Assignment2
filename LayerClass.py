@@ -13,10 +13,10 @@ class Layer:
         return np.mean(np.subtract(np.multiply(np.multiply(-1, Y),np.log(H)),np.multiply(np.subtract(1, Y),np.log(np.subtract(1,H)))))
 
 class NeuralNetwork:
-    def __init__(self, random, input_size, output_size):
+    def __init__(self):
         self.camadas = []
-	self.functions = []
-	self.derivatives = []
+        self.functions = []
+        self.derivatives = []
 
     def forward(self,X):
         out = len(self.camadas)-1
