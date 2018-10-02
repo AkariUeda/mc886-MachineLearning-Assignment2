@@ -18,12 +18,12 @@ class NeuralNetwork:
 	self.functions = []
 	self.derivatives = []
 
-    def forward(self,X,y):
+    def forward(self,X):
         out = len(self.camadas)-1
         inp = 0
         self.camadas[0].activation = X
-        for i in range(1,len(self.camadas)):
-            self.camadas[i].activation = sigmoid(self.camadas[i-1].activation.dot(self.camadas[i].weights))
+        for i in range(0,len(self.camadas)):
+            self.camadas[i].activation = self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights))
         return self.camadas[out].activation
 
 
@@ -40,7 +40,6 @@ class NeuralNetwork:
 
         for i in range(len(camadas)-1,0,-1):
             self.camadas[i].weights += learning_rate*self.camadas[i-1].activation.T.dot(self.camadas[i].delta)
-
 
     def predict(self,X,y):
         camadas = np.copy(self.camadas)

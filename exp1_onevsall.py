@@ -18,9 +18,9 @@ y[train_labels == 0] = 1
 y[train_labels != 0] = 0
 
 # Adicionando a camada de input no indice 0
-neural_net_logistic.camadas.append(Layer(False, train_set.shape[1], train_set.shape[1]))
-neural_net_logistic.camadas[0].forward(train_set,identidade)
-print("Primeira camada adicionada")
+neural_softmax.camadas.append(Layer(False, train_set.shape[1], train_set.shape[1]))
+neural_softmax.functions.append(identidade)
+neural_softmax.forward(train_set)
 
 # Adicionando a camada de saída no índice 1
 neural_net_logistic.camadas.append(Layer(True, neural_net_logistic.camadas[0].activation.shape[1], 1 ))

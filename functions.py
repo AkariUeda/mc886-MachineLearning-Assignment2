@@ -25,7 +25,22 @@ sigmoid = np.vectorize(sig)
 def sigmoidDerivative(x):
     return x * (1 - x)
 
-def softmax(x):
-    s = np.exp(x)
-    s = np.true_divide(s,np.sum(s))
-    return s
+
+def softmax(X):
+    exps = np.exp(X - np.max(X))
+    return exps / np.sum(exps)
+
+
+def cross_entropy(X,y):
+    m = y.shape[0]
+    p = softmax(X)
+    log_likelihood = -np.log(p[range(m),y])
+    loss = np.sum(log_likelihood) / m
+    return loss
+
+def delta_cross_entropy(X,y):
+    m = y.shape[0]
+    grad = softmax(X)
+    grad[range(m),y] -= 1
+    grad = grad/m
+    return grad
