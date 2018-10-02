@@ -18,6 +18,7 @@ def main():
     # Adicionando a camada de input no indice 0
     neural_softmax.camadas.append(Layer(False, train_set.shape[1], train_set.shape[1]))
     neural_softmax.functions.append(identidade)
+    neural_softmax.derivatives.append(identidade)
     neural_softmax.forward(train_set)
 
     # Adicionando a camada de saída com 10 neurônios no índice 1
@@ -25,6 +26,9 @@ def main():
     neural_softmax.functions.append(softmax)
     neural_softmax.derivatives.append(delta_cross_entropy)
     
+    print(neural_softmax.camadas)
+    print(neural_softmax.functions)
+    print(neural_softmax.derivatives)
     # Treinando
     learning_rate = 0.02
     iteracoes = 1000
