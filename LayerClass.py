@@ -6,7 +6,6 @@ class Layer:
         self.activation = np.array((output_size,1))
 
         if random == True:
-            print("pesos aleatorios")
             self.weights = np.random.uniform(-0.05,0.05,(input_size, output_size))
             self.bias = np.random.uniform(-0.05,0.05,(output_size,1))
         else:
@@ -64,16 +63,18 @@ class NeuralNetwork:
         print("Acurácia validação: "+str(acc/len(y)))
 
     def train(self,X,y,learning_rate,iteracoes, printacc):
+        acc = 0
         for i in range(0, iteracoes):
-            output = self.forward(X)
-            if printacc:
-                preds = np.copy(output)
-                print("Loss: "+str(cross_entropy(output, y)))
-                preds[preds > 0.5] = 1
-                preds[preds <=0.5] = 0
-                acc = sum(preds == y)
-                print("Acc: "+str(acc/len(y)))
+            self.forward(X)
             self.backward(X,y,learning_rate)
+            preds = np.copy(self.camadas[1].activation)
+            preds[preds > 0.5] = 1
+            preds[preds <=0.5] = 0
+            acc = sum(preds == y)/len(y)
+            if printacc:               
+                print("Acc: "+str(acc))
+        return acc
+
 
     def predict_prob(self,X,y):
         camadas = np.copy(self.camadas)
@@ -81,7 +82,8 @@ class NeuralNetwork:
         inp = 0
         camadas[0].activation = X
         for i in range(1,len(camadas)):
-            camadas[i].activation = self.derivatives[i](camadas[i-1].activation.dot(camadas[i].weights))
-        output = camadas[out].activation
+            camadas[i].activation = self.functions[i](camadas[i-1].activation.dot(camadas[i].weights))
         preds = camadas[out].activation
+        #print("Pred do predict")
+        #print(preds)
         return preds

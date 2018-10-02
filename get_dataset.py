@@ -27,22 +27,22 @@ def main():
     # np.savetxt('fashion-mnist_valid-labels.csv', valid_labels, delimiter=',',fmt='%i')
     # np.savetxt('fashion-mnist_train-set.csv', train_set, delimiter=',',fmt='%i')
 
-    dataset = pd.read_csv('toy_fashion-mnist_train.csv')
+    #dataset = pd.read_csv('toy_fashion-mnist_train.csv')
 
-    dataset = dataset.sample(frac=1)
-    dataset = np.array(dataset)
-    train_set    = dataset[0:400,  2:]
-    valid_set    = dataset[400:,2:]
-    train_labels = dataset[0:400,1]
-    valid_labels = dataset[400:,1]
+    #dataset = dataset.sample(frac=1)
+    #dataset = np.array(dataset)
+    #train_set    = dataset[0:400,  2:]
+    #valid_set    = dataset[400:,2:]
+    #train_labels = dataset[0:400,1]
+    #valid_labels = dataset[400:,1]
 
-    print(train_set.shape)
-    print(train_labels[1])
-
-    np.savetxt('toy_fashion-mnist_valid-set.csv', valid_set, delimiter=',')
-    np.savetxt('toy_fashion-mnist_train-labels.csv', train_labels, delimiter=',')
-    np.savetxt('toy_fashion-mnist_valid-labels.csv', valid_labels, delimiter=',')
-    np.savetxt('toy_fashion-mnist_train-set.csv', train_set, delimiter=',')
+    #print(train_set.shape)
+    #print(train_labels[1])
+    
+    #np.savetxt('toy_fashion-mnist_valid-set.csv', valid_set, delimiter=',')
+    #np.savetxt('toy_fashion-mnist_train-labels.csv', train_labels, delimiter=',')
+    #np.savetxt('toy_fashion-mnist_valid-labels.csv', valid_labels, delimiter=',')
+    #np.savetxt('toy_fashion-mnist_train-set.csv', train_set, delimiter=',')
 
 
     print("Lendo dataset...")

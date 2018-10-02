@@ -14,10 +14,7 @@ def reluDerivative(x):
 def sig(x):
   x = np.clip( x, -500, 500 )
   x = 1 / (1 + math.exp(-x))
-  if x > 0.999:
-    return 0.999
-  if x < 0.0001:
-    return 0.0001
+
   return x
 
 def sigmoid(v):
