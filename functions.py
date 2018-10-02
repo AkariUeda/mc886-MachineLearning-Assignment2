@@ -23,7 +23,7 @@ def sig(x):
 def sigmoid(v):
     return np.vectorize(sig)(v)
 
-def sigmoidDerivative(x):
+def sigmoidDerivative(x,y):
     return x * (1 - x)
 
 
