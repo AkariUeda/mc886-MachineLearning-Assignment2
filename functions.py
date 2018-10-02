@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 def identidade(x):
     return x
 
@@ -20,7 +20,8 @@ def sig(x):
     return 0.0001
   return x
 
-sigmoid = np.vectorize(sig)
+def sigmoid(v):
+    return np.vectorize(sig)(v)
 
 def sigmoidDerivative(x):
     return x * (1 - x)
