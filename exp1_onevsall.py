@@ -6,27 +6,6 @@ from random import randrange, uniform
 from functions import *
 import get_dataset
 
-
-
-##
-## REGRESSAO LOGISTICA COM REDE NEURAL DE UMA CAMADA
-##    
-
-neural_net_logistic = NeuralNetwork()
-y = np.zeros((train_labels.shape))
-y[train_labels == 0] = 1
-y[train_labels != 0] = 0
-
-# Adicionando a camada de input no indice 0
-neural_softmax.camadas.append(Layer(False, train_set.shape[1], train_set.shape[1]))
-neural_softmax.functions.append(identidade)
-neural_softmax.forward(train_set)
-
-# Adicionando a camada de saída no índice 1
-neural_net_logistic.camadas.append(Layer(True, neural_net_logistic.camadas[0].activation.shape[1], 1 ))
-print("Segunda camada adicionada")
-
-
 ##
 ## ONE VS ALL
 ##
@@ -35,35 +14,38 @@ class OneVsAllClassifier:
     def __init__(self, classes):
         self.classes = classes
         
-    def train(self,X,y,lr):        
-        self.neural_net = []*self.classes
-        self.neural_net = []
-        y = np.zeros((train_labels.shape))*self.classes
+    def train(self,X,yl,lr,it):        
+        self.neural_net = [NeuralNetwork() for i in range(self.classes)]
+        #y = np.zeros((yl.shape[0],self.classes))
+        y = np.repeat(yl,10,axis=1)
         for i in range(self.classes):
-            y[i][train_labels == i] = 1
-            y[i][train_labels != i] = 0
+            y[i][y[i] == i] = 1
+            y[i][y[i] != i] = 0
             # Adicionando a camada de input no indice 0
-            neural_net[i].append(Layer(False, train_set.shape[1], train_set.shape[1]))
-            neural_net[i][0].forward(train_set,identidade)
-            print("Primeira camada adicionada")
+            print("Forma do X")
+            print(i)
+            self.neural_net[i].camadas.append(Layer(False, X.shape[1], X.shape[1]))
+            self.neural_net[i].forward(X,identidade)
+            #print("Primeira camada adicionada")
 
-            # Adicionando a camada de saída no índice 1
-            neural_net[i].append(Layer(True, neural_net[i][0].activation.shape[1], 1 ))
-            print("Segunda camada adicionada")  
+            # Adicionando a camada de saida no indice 1
+            self.neural_net[i].camadas.append(Layer(True,self.neural_net[i][0].activation.shape[1], 1 ))
+            #print("Segunda camada adicionada") 
+            self.neural_net[i].train(X,y[i],lr,it,False)
 
     def classify(X,y):
-        bestClass = -1
-        bestProb = -1
+        probs = [];
         for i in range(self.classes):
-            prob = predict(self.neural_net[i],X,y)
-            if prob > bestProb:
-                bestClass = i
-                bestProb = prob
+            probs.append(self.neural_net.predict_proba(X,y))
+        print(probs)
+            
 
 def main():
-    train_set, valid_set, train_labels, valid_labels = get_dataset()
-
-
+    train_set, valid_set, train_labels, valid_labels = get_dataset.main()
+    cl = OneVsAllClassifier(10)
+    cl.train(train_set,train_labels,0.002,1000)
+    cl.classify(valid_set,valid_labels)
+    
 if __name__ == "__main__":
     main()
 
