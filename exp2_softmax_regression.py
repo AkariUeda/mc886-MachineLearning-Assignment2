@@ -19,10 +19,10 @@ def main():
     neural_softmax.camadas.append(Layer(False, train_set.shape[1], train_set.shape[1]))
     neural_softmax.functions.append(identidade)
     neural_softmax.derivatives.append(identidade)
-    neural_softmax.forward(train_set)
+
 
     # Adicionando a camada de saída com 10 neurônios no índice 1
-    neural_softmax.camadas.append(Layer(True, neural_softmax.camadas[0].activation.shape[1], 10))
+    neural_softmax.camadas.append(Layer(True, train_set.shape[1], 10))
     neural_softmax.functions.append(softmax)
     neural_softmax.derivatives.append(softmax_derivative)
     

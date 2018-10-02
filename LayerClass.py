@@ -31,7 +31,7 @@ class NeuralNetwork:
         for i in range(1,len(self.camadas)):
             #self.camadas[i].activation = np.add(self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights)),self.camadas[i].bias.T)
             self.camadas[i].activation = self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights))
-            print(self.camadas[i].activation[0])
+            #print(self.camadas[i].activation[0])
         return self.camadas[out].activation
 
 

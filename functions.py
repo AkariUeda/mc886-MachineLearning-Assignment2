@@ -29,7 +29,9 @@ def sigmoidDerivative(x,y):
 
 def softmax(X):
     exps = np.exp(X - np.max(X))
-    return exps / np.sum(exps)
+    s = exps / np.sum(exps)
+#    print( s)
+    return s
     
 def softmax_derivative(X,y):
     res = []
