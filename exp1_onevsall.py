@@ -14,7 +14,7 @@ class OneVsAllClassifier:
     def __init__(self, classes):
         self.classes = classes
         
-    def train(self,X,yl,lr,it):        
+    def train(self,X,yl,lr,lb,it):        
         self.neural_net = []
         for i in range(self.classes):
             self.neural_net.append(NeuralNetwork())
@@ -36,7 +36,7 @@ class OneVsAllClassifier:
             self.neural_net[i].camadas.append(Layer(False, X.shape[1], X.shape[1]))
             self.neural_net[i].functions.append(identidade) 
             self.neural_net[i].derivatives.append(identidade)
-            self.neural_net[i].forward(X)
+            self.neural_net[i].forward(X,y)
             #print("Primeira camada adicionada")
 
             # Adicionando a camada de saida no indice 1
@@ -44,7 +44,7 @@ class OneVsAllClassifier:
             self.neural_net[i].functions.append(sigmoid)
             self.neural_net[i].derivatives.append(sigmoidDerivative)
             #print("Segunda camada adicionada") 
-            acc = self.neural_net[i].train(X,nc,lr,it,False)
+            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,it,False)
             print("Acc de "+str(acc)+"% para a classe "+str(i))
 
     def classify(self,X,y):
@@ -94,7 +94,7 @@ def main():
     #############################
     print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(10)
-    cl.train(X,y,0.002,100)
+    cl.train(X,y,0.002,0.02,100)
     results = cl.classify(Xv,yv)
     erro = 0    
     #erro = sum(results != yv)

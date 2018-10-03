@@ -66,7 +66,7 @@ class NeuralNetwork:
             self.camadas[out].delta = np.subtract(self.camadas[out].activation,Y)
 
         if self.functions[out] == sigmoid:
-            self.camadas[out].error = y-self.camadas[out].activation
+            self.camadas[out].error = self.camadas[out].activation - y
             self.camadas[out].delta = self.camadas[out].error*self.derivatives[out](self.camadas[out].activation)
             
         for i in range(len(self.camadas)-2,0,-1):
@@ -75,8 +75,7 @@ class NeuralNetwork:
 
         for i in range(len(self.camadas)-1,0,-1):
             w = learning_rate*self.camadas[i-1].activation.T.dot(self.camadas[i].delta) + (lamb/m)*self.camadas[i].weights
-            self.camadas[i].weights -= w
-            
+            self.camadas[i].weights -= w            
             b = np.sum(self.camadas[i].delta, axis=0)
             b = b.reshape((len(b),1))
             self.camadas[i].bias -= b * learning_rate
@@ -93,17 +92,22 @@ class NeuralNetwork:
         acc = sum(preds == y)
         print("Acurácia validação: "+str(acc/len(y)))
 
-    def train_onevsall(self,X,y,learning_rate,iteracoes, printacc):
+    def train_onevsall(self,X,y,learning_rate,lamb,iteracoes, printacc):
         acc = 0
-        for i in range(0, iteracoes):
-            self.forward(X,y)
-            self.backward(X,y,learning_rate)
+        bs = 32
+        lim = int(X.shape[0]/bs)
+        j = 0
+        for i in range(0, iteracoes): 
+            self.forward(X[bs*j:bs*j+bs],y[bs*j:bs*j+bs])
+            self.backward(X[bs*j:bs*j+bs],y[bs*j:bs*j+bs],learning_rate,lamb)
             preds = np.copy(self.camadas[1].activation)
             preds[preds > 0.5] = 1
             preds[preds <=0.5] = 0
-            acc = sum(preds == y)/len(y)
+            acc = sum(preds == y[bs*j:bs*j+bs])/len(y[bs*j:bs*j+bs])
             if printacc:               
                 print("Acc: "+str(acc))
+            j += 1
+            j %= lim
         return acc
 
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,iteracoes, printacc):
