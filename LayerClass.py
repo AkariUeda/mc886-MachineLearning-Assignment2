@@ -22,6 +22,7 @@ class NeuralNetwork:
 
     def loss(self,H,Y):
         return -1* np.add(np.multiply(Y,(1/H)) , np.multiply(np.subtract(1, Y),(1/np.subtract(1,H))))
+        
     def forward(self,X):
         out = len(self.camadas)-1
         inp = 0
@@ -32,7 +33,6 @@ class NeuralNetwork:
             self.camadas[i].activation = self.functions[i](self.camadas[i-1].activation.dot(self.camadas[i].weights))
             #print(self.camadas[i].activation[0])
         return self.camadas[out].activation
-
 
     def backward(self,  X, y, learning_rate):
         out = len(self.camadas)-1
