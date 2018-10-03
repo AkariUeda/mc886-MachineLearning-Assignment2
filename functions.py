@@ -1,11 +1,8 @@
 import numpy as np
 import math
-<<<<<<< HEAD
 import matplotlib.pyplot as plt
 import random
 
-=======
->>>>>>> 8e5d67c75f8cd4af9dd7c0e59bfe3e230861dfa6
 def identidade(x):
     return x
 
@@ -27,18 +24,9 @@ def sigmoid(v):
 def sigmoidDerivative(x):
     return x * (1 - x)
 
-<<<<<<< HEAD
 def softmax(A):
     expA = np.exp(A)
     return expA / expA.sum(axis=1, keepdims=True)
-=======
-def softmax(X):
-    exps = np.exp(X - np.max(X))
-    s = exps / np.sum(exps)
-    #print(X[0])
-    #print(s[0])
-    return s
->>>>>>> 8e5d67c75f8cd4af9dd7c0e59bfe3e230861dfa6
     
 def softmax_derivative(X):
     res = []
@@ -63,7 +51,6 @@ def delta_cross_entropy(X,y):
     grad[range(m),y] -= 1
     grad = grad/m
     return grad
-<<<<<<< HEAD
 
 def grid_search(model, X,y):
         learning_rates = [2e-3, 2e-4, 2e-5 ,2e-6,2e-7]
@@ -102,5 +89,3 @@ def grid_search(model, X,y):
         plt.legend()
         plt.savefig('grid_search.png')
         plt.show() 
-=======
->>>>>>> 8e5d67c75f8cd4af9dd7c0e59bfe3e230861dfa6
