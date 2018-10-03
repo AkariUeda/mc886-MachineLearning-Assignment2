@@ -67,10 +67,10 @@ def main():
     mean = np.mean(train_set, axis=0)
     std = np.std(train_set, axis=0)
     std[std == 0] = 1
-    train_set = normalize_features(train_set, mean, std)
-    valid_set = normalize_features(valid_set, mean, std)
-    train_labels = train_labels.reshape((len(train_labels),1))
-    valid_labels = valid_labels.reshape((len(valid_labels),1))
+    #train_set = normalize_features(train_set, mean, std)
+    #valid_set = normalize_features(valid_set, mean, std)
+    #train_labels = train_labels.reshape((len(train_labels),1))
+    #valid_labels = valid_labels.reshape((len(valid_labels),1))
 
     print("Dataset normalizado")
     return train_set, valid_set, train_labels, valid_labels

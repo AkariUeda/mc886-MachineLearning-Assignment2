@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as nppr
 import math
 import pandas as pd
 from LayerClass import Layer, NeuralNetwork
@@ -32,9 +32,8 @@ def main():
     # Treinando
     learning_rate = 0.2
     iteracoes = 1000
-    print_acuracia = False
+    print_acuracia = True
     neural_softmax.train(train_set, train_labels,learning_rate,iteracoes, print_acuracia)
-
 
 if __name__ == "__main__":
     main()

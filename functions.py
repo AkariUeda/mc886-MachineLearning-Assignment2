@@ -27,15 +27,17 @@ def sigmoidDerivative(x,y):
 def softmax(X):
     exps = np.exp(X - np.max(X))
     s = exps / np.sum(exps)
-#    print( s)
+    #print( s[0])
     return s
     
-def softmax_derivative(X,y):
+def softmax_derivative(X):
     res = []
     exps = np.sum(np.exp(X))
     for i in range(0, len(X)):
         r = X[i]*(exps - np.exp(X[i])) / np.power(exps,2)
         res.append(r)
+    res = np.array(res)
+    #print(res.shape)
     return res
 
 
