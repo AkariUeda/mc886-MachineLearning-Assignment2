@@ -30,10 +30,10 @@ def main():
     print(neural_softmax.functions)
     print(neural_softmax.derivatives)
     # Treinando
-    learning_rate = 0.2
+    learning_rate = 0.000002
     iteracoes = 1000
     print_acuracia = True
-    neural_softmax.train(train_set, train_labels,learning_rate,iteracoes, print_acuracia)
+    neural_softmax.train_neuralnet(train_set, train_labels, valid_set, valid_labels, learning_rate,iteracoes, print_acuracia)
 
 if __name__ == "__main__":
     main()

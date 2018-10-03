@@ -4,13 +4,11 @@ def identidade(x):
     return x
 
 def relu(x):
-    return np.max(x,0)
-
+    return np.maximum(x,0)
+    
 def reluDerivative(x):
-    x[x<=0] = 0
-    x[x>0] = 1
-    return x
-
+    return np.greater(x, 0).astype(int)
+    
 def sig(x):
   x = np.clip( x, -500, 500 )
   x = 1 / (1 + math.exp(-x))
@@ -20,14 +18,14 @@ def sig(x):
 def sigmoid(v):
     return np.vectorize(sig)(v)
 
-def sigmoidDerivative(x,y):
+def sigmoidDerivative(x):
     return x * (1 - x)
-
 
 def softmax(X):
     exps = np.exp(X - np.max(X))
     s = exps / np.sum(exps)
-    #print( s[0])
+    #print(X[0])
+    #print(s[0])
     return s
     
 def softmax_derivative(X):
@@ -39,7 +37,6 @@ def softmax_derivative(X):
     res = np.array(res)
     #print(res.shape)
     return res
-
 
 def cross_entropy(X,y):
     m = y.shape[0]
