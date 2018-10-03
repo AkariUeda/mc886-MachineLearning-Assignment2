@@ -13,7 +13,6 @@ class Layer:
             self.weights = np.identity(input_size)
             self.bias = np.zeros(output_size)
 
-
 class NeuralNetwork:
     def __init__(self):
         self.camadas = []
@@ -22,21 +21,26 @@ class NeuralNetwork:
         self.train_loss = []
         self.valid_loss = []
 
-    def calc_loss(self,H,Y,group):
+    def calc_loss(self,H,y,group):
+        Y = np.zeros((len(y),10))
+        for i in range(0, len(y)):
+            Y[i][y[i]] = 1
         out = len(self.camadas)-1
+        m = H.shape[0]
         if group == 'train':
             if self.functions[out] == sigmoid:
-                self.train_loss.append(np.sum(-1* np.add(np.multiply(Y,(1/H)) , np.multiply(np.subtract(1, Y),(1/np.subtract(1,H))))))
+                self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                self.train_loss.append(np.sum(-np.log(H[Y])))
+                self.train_loss.append((-1 / m) * np.sum(Y * np.log(H)) + (1/2)*np.sum(self.camadas[out].weights**2))
+                #self.train_loss.append(np.sum(-np.log(H[Y])))
         elif group == 'valid':
             if self.functions[out] == sigmoid:
-                self.valid_loss.append(np.sum(-1* np.add(np.multiply(Y,(1/H)) , np.multiply(np.subtract(1, Y),(1/np.subtract(1,H))))))
+                self.valid_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                self.valid_loss.append(np.sum(-np.log(H[Y])))
+                #self.valid_loss.append(np.sum(-np.log(H[Y])))
+                self.valid_loss.append( (-1 / m) * np.sum(Y * np.log(H)) + (1/2)*np.sum(self.camadas[out].weights**2))
         return 
 
-        
     def forward(self,X,y):
         out = len(self.camadas)-1
         inp = 0
@@ -53,7 +57,6 @@ class NeuralNetwork:
             activation = self.functions[i](np.add(activation.dot(self.camadas[i].weights),self.camadas[i].bias.T))
         self.calc_loss(activation, y, 'valid')
         return activation
-
 
     def backward(self,  X, y, learning_rate):
         out = len(self.camadas)-1
@@ -145,6 +148,7 @@ class NeuralNetwork:
         for i in range(1,len(camadas)):
             camadas[i].activation = self.functions[i](camadas[i-1].activation.dot(camadas[i].weights))
         preds = camadas[out].activation
-        #print("Pred do predict")
-        #print(preds)
         return preds
+        
+        
+        
