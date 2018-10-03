@@ -5,11 +5,8 @@ from LayerClass import Layer, NeuralNetwork
 from random import randrange, uniform
 from functions import *
 import get_dataset
-<<<<<<< HEAD
 import sys
 
-=======
->>>>>>> 10902ad73b641e352a965ad9010caf29b883106e
 
 
 ##
@@ -41,7 +38,7 @@ def main():
 
     neural_net = new_neuralnet(train_set)
 
- iteracoes_grid = int(sys.argv[1])
+    iteracoes_grid = int(sys.argv[1])
     iteracoes_train = int(sys.argv[2])
 
     # Treinando
