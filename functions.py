@@ -11,7 +11,7 @@ def relu(x):
     
 def reluDerivative(x):
     return np.greater(x, 0).astype(int)
-    
+
 def sig(x):
   x = np.clip( x, -500, 500 )
   x = 1 / (1 + math.exp(-x))

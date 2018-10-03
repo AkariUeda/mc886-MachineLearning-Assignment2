@@ -106,7 +106,6 @@ class NeuralNetwork:
                 print("Acc: "+str(acc))
         return acc
 
-
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,iteracoes, printacc):
         for i in range(0, iteracoes):
             pt = self.forward(X,y)
