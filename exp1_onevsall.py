@@ -94,14 +94,15 @@ def main():
     #############################
     print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(10)
-    cl.train(X,y,0.002,10000)
-    results = cl.classDumb(X,y)
-    erro = 0
+    cl.train(X,y,0.002,100)
+    results = cl.classify(Xv,yv)
+    erro = 0    
+    #erro = sum(results != yv)
     for i in range(len(results)):
-        if results[i] != y[i]:
-            erro += 1
-            #print(str(i)+" foi classificado: "+str(results[i])+" VS esperado "+str(train_labels[i]))
-    print("Erramos "+str(erro)+" previsoes")
+        erro += results[i] != yv[i]
+        print(str(i)+" foi classificado: "+str(results[i])+" VS esperado "+str(train_labels[i]))
+    print("Erramos "+str(erro)+" previsoes no chique")
+
 if __name__ == "__main__":
     main()
 
