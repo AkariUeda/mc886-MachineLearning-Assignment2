@@ -35,7 +35,7 @@ def main():
     print(neural_net.derivatives)
     # Treinando
     learning_rate = 0.0000002
-    iteracoes = 100000
+    iteracoes = 1000
     print_acuracia = True
     neural_net.train_neuralnet(train_set, train_labels, valid_set, valid_labels, learning_rate,iteracoes, print_acuracia)
 
