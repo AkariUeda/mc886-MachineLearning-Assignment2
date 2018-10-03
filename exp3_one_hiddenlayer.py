@@ -5,8 +5,11 @@ from LayerClass import Layer, NeuralNetwork
 from random import randrange, uniform
 from functions import *
 import get_dataset
+<<<<<<< HEAD
 import sys
 
+=======
+>>>>>>> 10902ad73b641e352a965ad9010caf29b883106e
 
 
 ##
