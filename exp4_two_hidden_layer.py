@@ -41,6 +41,7 @@ def main():
     # Treinando
     learning_rate = 0.00002
     iteracoes = 1000
+
     print_acuracia = True
     neural_net.train_neuralnet(train_set, train_labels, valid_set, valid_labels, learning_rate,iteracoes, print_acuracia)
 

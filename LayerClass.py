@@ -13,7 +13,6 @@ class Layer:
             self.bias = np.zeros(output_size)
 
 class NeuralNetwork:
-
     def __init__(self):
         self.camadas = []
         self.functions = []
