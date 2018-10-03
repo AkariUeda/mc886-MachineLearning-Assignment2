@@ -62,24 +62,45 @@ class OneVsAllClassifier:
     def classSingle(self,x,y,id):
         bstp = -1
         cl = -1
+        debug = []
         for i in range(self.classes):
             nval = self.neural_net[i].predict_prob(x,y)
             if nval > bstp:
                 bstp = nval
                 cl = i
-            print("O item "+str(id)+" pertence a "+str(i)+" com chance "+str(nval)+" deveria ser "+str(y))
+            debug.append("O item "+str(id)+" pertence a "+str(i)+" com chance "+str(nval)+" deveria ser "+str(y))
+        ## UMA CLASSE SO PRA TESTE ##
+        #if bstp < 0.50:
+        #    cl = 1
+        #else:
+        #    cl = 0        
+        #############################
+        if(cl != y):
+            for l in debug:
+                print(l)
         return cl
 def main():
     train_set, valid_set, train_labels, valid_labels = get_dataset.main()
+    X = train_set
+    y = train_labels
+    Xv = valid_set
+    yv = valid_labels
+    ## UMA CLASSE SO PRA TESTE ##
+    #for j in range(len(y)):
+    #            y[j] = not(y[j] == 0) 
+    #            
+    #for j in range(len(yv)):
+    #            yv[j] = not(yv[j] == 0)
+    #############################
     print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(10)
-    cl.train(train_set,train_labels,0.002,100)
-    results = cl.classDumb(train_set,train_labels)
+    cl.train(X,y,0.002,10000)
+    results = cl.classDumb(X,y)
     erro = 0
     for i in range(len(results)):
-        #print(str(i)+" foi classificado: "+str(results[i])+" VS esperado "+str(train_labels[i]))
-        if results[i] != train_labels[i]:
+        if results[i] != y[i]:
             erro += 1
+            #print(str(i)+" foi classificado: "+str(results[i])+" VS esperado "+str(train_labels[i]))
     print("Erramos "+str(erro)+" previsoes")
 if __name__ == "__main__":
     main()
