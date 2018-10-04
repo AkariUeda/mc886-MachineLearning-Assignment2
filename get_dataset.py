@@ -50,7 +50,7 @@ def main():
     # train_labels = np.genfromtxt('toy_fashion-mnist_train-labels.csv', delimiter=',')
     # valid_labels = np.genfromtxt('toy_fashion-mnist_valid-labels.csv', delimiter=',')
 
-    print(train_set.shape, valid_set.shape, train_labels.shape, valid_labels.shape)
+    #print(train_set.shape, valid_set.shape, train_labels.shape, valid_labels.shape)
 
 
     print("Dataset carregado com sucesso")

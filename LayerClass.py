@@ -2,6 +2,10 @@ import numpy as np
 import math
 from functions import relu, reluDerivative, sigmoid, sigmoidDerivative, softmax, softmax_derivative, identidade
 import matplotlib.pyplot as plt
+import seaborn as sn
+import pandas as pd 
+import warnings
+warnings.filterwarnings("ignore")
 
 class Layer:
     def __init__(self, random, input_size, output_size):
@@ -114,9 +118,8 @@ class NeuralNetwork:
                     print("Acc: "+str(acc))
         return acc
 
-    def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc):    
+    def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc, experiment):    
         lim = int(math.ceil(X.shape[0]/bs))
-
         vbs = int(math.ceil(Xv.shape[0]/lim))
         for i in range(0, iteracoes):
             p_train = []
@@ -124,10 +127,6 @@ class NeuralNetwork:
             for j in range(0,lim):
                 Xsl = X[bs*j:bs*j+bs]
                 ysl = y[bs*j:bs*j+bs]
-                #Xslv = Xv[vbs*j:vbs*j+vbs]
-                #yslv = yv[vbs*j:vbs*j+vbs]
-                #print(X.shape,y.shape,Xv.shape,yv.shape)
-                #print(Xsl.shape,ysl.shape,Xslv.shape,yslv.shape)
                 pt = self.forward(Xsl,ysl)
                 self.backward(Xsl,ysl,learning_rate, lamb)
                 #print(np.argmax(pt, axis=1).shape, pt.shape)
@@ -146,43 +145,37 @@ class NeuralNetwork:
         for i in range(len(yvl)):
             if p_valid[i] == yvl[i]:
                 acc_valid+=1
-        #print(acc_train)
-        #print(acc_valid)
-        #Essa expressao chique simplismente nao funcionava pro que a gnt queria
-        #acc_train = np.sum(np.array(p_train) == np.array(y1))/len(y1)
-        #acc_valid = np.sum(np.array(p_valid) == np.array(yv1))/len(yv1)
-        acc_train = acc_train/len(yl)
-        
+
+        acc_train = acc_train/len(yl)  
         acc_valid = acc_valid/len(yvl)
-        #print(len(yl), len(yvl), len(p_valid))
         if printacc:     
             confusion_matrix = np.zeros((10,10))
             for j in range(0,len(p_valid)):
                 confusion_matrix[yvl[j]][p_valid[j]] += 1  
             print("Acc treino: "+str(acc_train))        
             print("Acc valid: "+str(acc_valid))
-            #print(Xv.shape, yv.shape)
-            #print(len(self.valid_loss))
-            #print(self.valid_loss)
+
             print("Loss: "+str(self.valid_loss[-1]))
-            print(confusion_matrix)
-            fig, ax = plt.subplots()
-            min_val, max_val = 0, 15
-            ax.matshow(confusion_matrix, cmap=plt.cm.Blues)
-            for i in range(0,10):
-                for j in range(0,10):
-                    c = confusion_matrix[j,i]
-                    ax.text(i, j, str(c), va='center', ha='center')
-            ax.grid()
+
+            df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
+            plt.figure(figsize = (10,7))
+            sn.heatmap(df_cm, annot=True, cmap="Blues")
+            plt.savefig(experiment+'_confusion_matrix.png')
+            plt.show()
             plt.close()
+
+            plt.figure(1)
+            plt.subplot(211)
+            plt.plot( range(0,len(self.train_loss)), self.train_loss, 'r-', label='Train')
+            plt.ylabel('Cost')
+            plt.subplot(212)
             plt.plot( range(0,len(self.valid_loss)), self.valid_loss, 'g-', label='Valid')
-            plt.title('title')
             plt.ylabel('Cost')
             plt.xlabel('Iterations')
             plt.legend()
-            plt.savefig('training.png')
-            plt.show() 
-            
+            plt.savefig(experiment+'_training.png')
+            plt.show()
+
         return self.valid_loss
 
 

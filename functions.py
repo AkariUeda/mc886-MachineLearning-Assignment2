@@ -3,6 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import random
 
+
 def identidade(x):
     return x
 
@@ -73,11 +74,11 @@ def grid_search(model, X,y, iteracoes):
                         Xt = X[index[:n]]
                         yt = y[index[:n]]
                         test_model = model(Xt)
-                        loss = test_model.train_neuralnet(Xt, yt, Xv, yv, lamb, alpha,batch_size,  iteracoes, False)
+                        loss = test_model.train_neuralnet(Xt, yt, Xv, yv, lamb, alpha,batch_size,  iteracoes, False, '')
                         loss_fold += loss[-1]
                     loss_fold /= 5
                     print("  {:<15}  {:<10} {:<5.4}".format(alpha, lamb, loss_fold))
-                    if loss_fold < media_minloss:
+                    if not math.isnan(loss_fold) and loss_fold < media_minloss:
                         media_minloss = loss_fold
                         best_lr = alpha
                         best_lamb = lamb

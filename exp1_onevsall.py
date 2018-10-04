@@ -25,26 +25,18 @@ class OneVsAllClassifier:
         for i in range(self.classes):
             nc = y[i].reshape((y[i].shape[0], 1))
             print("Vamos marcar todos os "+str(i)+" !!")
-            #print(nc.T)
             for j in range(len(nc)):
                 nc[j] = nc[j] == i 
-            #nc[nc == i] = 1
-            #nc[nc != i] = 0
-            #print(nc.T)
-            # Adicionando a camada de input no indice 0
-            
+ 
             self.neural_net[i].camadas.append(Layer(False, X.shape[1], X.shape[1]))
             self.neural_net[i].functions.append(identidade) 
             self.neural_net[i].derivatives.append(identidade)
             self.neural_net[i].forward(X,y)
-            #print("Primeira camada adicionada")
-
-            # Adicionando a camada de saida no indice 1
             self.neural_net[i].camadas.append(Layer(True,self.neural_net[i].camadas[0].activation.shape[1], 1 ))
             self.neural_net[i].functions.append(sigmoid)
             self.neural_net[i].derivatives.append(sigmoidDerivative)
-            #print("Segunda camada adicionada") 
-            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,bs,it,True)
+
+            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,bs,it,False)
             print("Acc de "+str(acc)+"% para a classe "+str(i))
 
     def classify(self,X,y):
@@ -69,12 +61,7 @@ class OneVsAllClassifier:
                 bstp = nval
                 cl = i
             debug.append("O item "+str(id)+" pertence a "+str(i)+" com chance "+str(nval)+" deveria ser "+str(y))
-        ## UMA CLASSE SO PRA TESTE ##
-        #if bstp < 0.50:
-        #    cl = 1
-        #else:
-        #    cl = 0        
-        #############################
+
         if(cl != y):
             for l in debug:
                 print(l)
@@ -85,19 +72,12 @@ def main():
     y = train_labels
     Xv = valid_set
     yv = valid_labels
-    ## UMA CLASSE SO PRA TESTE ##
-    #for j in range(len(y)):
-    #            y[j] = not(y[j] == 0) 
-    #            
-    #for j in range(len(yv)):
-    #            yv[j] = not(yv[j] == 0)
-    #############################
+  
     print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(10)
-    cl.train(X,y,0.02,0.002,256,100)
+    cl.train(X,y,0.02,0.002,256,1)
     results = cl.classify(Xv,yv)
     erro = 0    
-    #erro = sum(results != yv)
     for i in range(len(results)):
         if int(results[i]) != int(yv[i]):
             erro += 1
