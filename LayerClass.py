@@ -36,17 +36,17 @@ class NeuralNetwork:
         functions = network[1]
         derivatives = network[2]
         for i in range(weights.shape[0]):
-            self.camadas.append(Layer(False,weights[i].shape[0],ws[i].shape[1]))
-            self.camadas[i].weights = weights[i]
+            self.camadas.append(Layer(False,weights[i].shape[0],weights[i].shape[1]))
+            self.camadas[i].weights = weights[i].copy()
             self.functions.append(functions[i])
             self.derivatives.append(derivatives[i])
             
     def save_model(self,name):
         ws = [[],[],[]]
-        for i in range(nl):            
+        for i in range(len(self.camadas)):            
             ws[0].append(self.camadas[i].weights)
             ws[1].append(self.functions[i])
-            ws[2].append(self.derivative[i])
+            ws[2].append(self.derivatives[i])
         ws = np.array(ws)
         np.save(name, ws)
     def calc_loss(self,H,y,group):

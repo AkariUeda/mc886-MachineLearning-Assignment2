@@ -47,7 +47,7 @@ def main():
     learning_rate, lamb = grid_search(new_neuralnet, train_set, train_labels, iteracoes_grid)
     print_acuracia = True
     neural_net.train_neuralnet(train_set, train_labels, valid_set, valid_labels, lamb, learning_rate,batch_size,iteracoes_train, print_acuracia, 'nn_twohidden')
-
+    neural_net.save_model("two_hidden.npy")
     
 if __name__ == "__main__":
     main()
