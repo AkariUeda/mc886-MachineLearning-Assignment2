@@ -30,14 +30,14 @@ class NeuralNetwork:
             if self.functions[out] == sigmoid:
                 self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))/m
+                cost = np.sum(-Y * np.log(H))
                 self.train_loss.append(cost)
 
         elif group == 'valid':
             if self.functions[out] == sigmoid:
                 self.valid_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))/m
+                cost = np.sum(-Y * np.log(H))
                 self.valid_loss.append(cost)
         return 
 
@@ -117,6 +117,7 @@ class NeuralNetwork:
         lim = int(X.shape[0]/bs)
         p_train = []
         p_valid = []
+<<<<<<< HEAD
         vbs = int(Xv.shape[0]/lim)
         for i in range(0, iteracoes):
             for j in range(0,lim):
@@ -149,13 +150,18 @@ class NeuralNetwork:
         #acc_valid = np.sum(np.array(p_valid) == np.array(yv1))/len(yv1)
         acc_train = acc_train/len(yl)
         acc_valid = acc_valid/len(yvl)
-        if printacc:               
-            print("Acc treino: "+str(acc_train))
-            print("Acc valid: "+str(acc_valid))
+        if printacc:     
             confusion_matrix = np.zeros((10,10))
-            for j in range(0,10):
-                for k in range(0,10):
-                    confusion_matrix[j][k] += 1
+            for j in range(0,len(p_valid)):
+                confusion_matrix[yv1[j]][p_valid[j]] += 1  
+            print("Acc treino: "+str(acc_train))        
+            print("Acc valid: "+str(acc_valid))
+            print("Loss: "+str(self.valid_loss[-1]))
+            print(confusion_matrix)
+            plt.matshow(confusion_matrix)
+            plt.savefig('confusion_matrix.png')
+
+            plt.close()
             plt.plot( range(0,len(self.valid_loss)), self.valid_loss, 'g-', label='Valid')
             plt.title('title')
             plt.ylabel('Cost')

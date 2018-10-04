@@ -40,7 +40,7 @@ def main():
     batch_size = 256
     learning_rate, lamb = grid_search(new_neuralnet, train_set, train_labels, iteracoes_grid)
     print_acuracia = True
-    neural_softmax.train_neuralnet(train_set, train_labels, valid_set, valid_labels, lamb, learning_rate,batch_size,iteracoes_train, print_acuracia)
+    neural_softmax.train_neuralnet(train_set, train_labels, valid_set, valid_labels, lamb, learning_rate, batch_size, iteracoes_train, print_acuracia)
 
 if __name__ == "__main__":
     main()
