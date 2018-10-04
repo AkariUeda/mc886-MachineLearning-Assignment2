@@ -51,7 +51,7 @@ class NeuralNetwork:
         self.calc_loss(self.camadas[out].activation, y, 'train')
         return self.camadas[out].activation
 
-    def forward_pred(self,activation,y):
+    def forward_pred(self,activation,y):        
         for i in range(1,len(self.camadas)):
             activation = self.functions[i](np.add(activation.dot(self.camadas[i].weights),self.camadas[i].bias.T))
         self.calc_loss(activation, y, 'valid')
@@ -124,16 +124,16 @@ class NeuralNetwork:
             for j in range(0,lim):
                 Xsl = X[bs*j:bs*j+bs]
                 ysl = y[bs*j:bs*j+bs]
-                Xslv = Xv[vbs*j:vbs*j+vbs]
-                yslv = yv[vbs*j:vbs*j+vbs]
+                #Xslv = Xv[vbs*j:vbs*j+vbs]
+                #yslv = yv[vbs*j:vbs*j+vbs]
                 #print(X.shape,y.shape,Xv.shape,yv.shape)
                 #print(Xsl.shape,ysl.shape,Xslv.shape,yslv.shape)
                 pt = self.forward(Xsl,ysl)
-                pv = self.forward_pred(Xslv,yslv)
                 self.backward(Xsl,ysl,learning_rate, lamb)
                 #print(np.argmax(pt, axis=1).shape, pt.shape)
-                p_train.extend(np.argmax(pt, axis=1))
-                p_valid.extend(np.argmax(pv, axis=1))
+                p_train.extend(np.argmax(pt, axis=1))            
+            pv = self.forward_pred(Xv,yv)    
+            p_valid.extend(np.argmax(pv, axis=1))
         #print(len(p_train), len(p_valid))   
         yl = y.reshape((y.shape[0]))
         yvl = yv.reshape((yv.shape[0]))
