@@ -30,14 +30,14 @@ class NeuralNetwork:
             if self.functions[out] == sigmoid:
                 self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))/m
+                cost = np.sum(-Y * np.log(H))
                 self.train_loss.append(cost)
 
         elif group == 'valid':
             if self.functions[out] == sigmoid:
                 self.valid_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))/m
+                cost = np.sum(-Y * np.log(H))
                 self.valid_loss.append(cost)
         return 
 
@@ -113,31 +113,43 @@ class NeuralNetwork:
         lim = int(X.shape[0]/bs)
         p_train = []
         p_valid = []
+
         for i in range(0, iteracoes):
-            for j in range(0,lim):
-                Xsl = X[bs*j:bs*j+bs]
-                ysl = y[bs*j:bs*j+bs]
-                Xslv = Xv[bs*j:bs*j+bs]
-                yslv = yv[bs*j:bs*j+bs]
-                print(Xsl.shape, ysl.shape,Xslv.shape, yslv.shape)
-                pt = self.forward(Xsl,ysl)
-                pv = self.forward_pred(Xslv,yslv)
-                self.backward(Xsl,ysl,learning_rate, lamb)
-                p_train.extend(np.argmax(pt, axis=1))
-                p_valid.extend(np.argmax(pv, axis=1))
-            
+            # for j in range(0,lim):
+            #     Xsl = X[bs*j:bs*j+bs]
+            #     ysl = y[bs*j:bs*j+bs]
+            #     Xslv = Xv[bs*j:bs*j+bs]
+            #     yslv = yv[bs*j:bs*j+bs]
+            # print(Xsl.shape, ysl.shape,Xslv.shape, yslv.shape)
+            # pt = self.forward(Xsl,ysl)
+            # pv = self.forward_pred(Xslv,yslv)
+            # self.backward(Xsl,ysl,learning_rate, lamb)
+            pt = self.forward(X,y)
+            pv = self.forward_pred(Xv,yv)
+            self.backward(X,y,learning_rate, lamb)
+            # p_train.extend(np.argmax(pt, axis=1))
+            # p_valid.extend(np.argmax(pv, axis=1))
+            p_train=np.argmax(pt, axis=1)
+            p_valid=np.argmax(pv, axis=1)           
         y1 = y.reshape((y.shape[0]))
         yv1 = yv.reshape((yv.shape[0]))
-        
+
         acc_train = sum(p_train == y1)/len(y1)
         acc_valid = sum(p_valid == yv1)/len(yv1)
-        if printacc:               
-            print("Acc treino: "+str(acc_train))
-            print("Acc valid: "+str(acc_valid))
+        if printacc:  
+
             confusion_matrix = np.zeros((10,10))
-            for j in range(0,10):
-                for k in range(0,10):
-                    confusion_matrix[j][k] += 1
+            for j in range(0,len(p_valid)):
+                confusion_matrix[yv1[j]][p_valid[j]] += 1             
+            print("Acc treino: "+str(acc_train))
+        
+            print("Acc valid: "+str(acc_valid))
+            print("Loss: "+str(self.valid_loss[-1]))
+            print(confusion_matrix)
+            plt.matshow(confusion_matrix)
+            plt.savefig('confusion_matrix.png')
+
+            plt.close()
             plt.plot( range(0,len(self.valid_loss)), self.valid_loss, 'g-', label='Valid')
             plt.title('title')
             plt.ylabel('Cost')
