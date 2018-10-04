@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from functions import relu, reluDerivative, sigmoid, sigmoidDerivative, softmax, softmax_derivative, identidade
 import matplotlib.pyplot as plt
 
@@ -114,9 +115,9 @@ class NeuralNetwork:
         return acc
 
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc):    
-        lim = int(X.shape[0]/bs+1)
+        lim = int(math.ceil(X.shape[0]/bs))
 
-        vbs = int(Xv.shape[0]/lim+1)
+        vbs = int(math.ceil(Xv.shape[0]/lim))
         for i in range(0, iteracoes):
             p_train = []
             p_valid = []
