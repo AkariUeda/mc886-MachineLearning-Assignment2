@@ -92,33 +92,38 @@ class NeuralNetwork:
         acc = sum(preds == y)
         print("Acurácia validação: "+str(acc/len(y)))
 
-    def train_onevsall(self,X,y,learning_rate,lamb,iteracoes, printacc):
+    def train_onevsall(self,X,y,lamb,learning_rate,bs,iteracoes, printacc):
         acc = 0
-        bs = 32
         lim = int(X.shape[0]/bs)
-        j = 0
         for i in range(0, iteracoes): 
-            self.forward(X[bs*j:bs*j+bs],y[bs*j:bs*j+bs])
-            self.backward(X[bs*j:bs*j+bs],y[bs*j:bs*j+bs],learning_rate,lamb)
-            preds = np.copy(self.camadas[1].activation)
-            preds[preds > 0.5] = 1
-            preds[preds <=0.5] = 0
-            acc = sum(preds == y[bs*j:bs*j+bs])/len(y[bs*j:bs*j+bs])
-            if printacc:               
-                print("Acc: "+str(acc))
-            j += 1
-            j %= lim
+            for j in range(0,lim):
+                Xsl = X[bs*j:bs*j+bs]
+                ysl = y[bs*j:bs*j+bs]
+                self.forward(Xsl,ysl)
+                self.backward(Xsl,ysl,learning_rate,lamb)
+                preds = np.copy(self.camadas[1].activation)
+                preds[preds > 0.5] = 1
+                preds[preds <=0.5] = 0
+                acc = sum(preds == ysl)/len(ysl)
+                if printacc:               
+                    print("Acc: "+str(acc))
         return acc
 
-    def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,iteracoes, printacc):
+    def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc):    
+        lim = int(X.shape[0]/bs)
         for i in range(0, iteracoes):
-            pt = self.forward(X,y)
-            pv = self.forward_pred(Xv,yv)
-            self.backward(X,y,learning_rate, lamb)
-            p_train = np.argmax(pt, axis=1)
-            p_valid = np.argmax(pv, axis=1)
-            y1 = y.reshape((y.shape[0]))
-            yv1 = yv.reshape((yv.shape[0]))
+            for j in range(0,lim):
+                Xsl = X[bs*j:bs*j+bs]
+                ysl = y[bs*j:bs*j+bs]
+                pt = self.forward(Xsl,ysl)
+                pv = self.forward_pred(Xv,yv)
+                self.backward(X,y,learning_rate, lamb)
+                p_train = np.argmax(pt, axis=1)
+                p_valid = np.argmax(pv, axis=1)
+            
+        y1 = y.reshape((y.shape[0]))
+        yv1 = yv.reshape((yv.shape[0]))
+        
         acc_train = sum(p_train == y1)/len(y1)
         acc_valid = sum(p_valid == yv1)/len(yv1)
         if printacc:               
