@@ -24,7 +24,31 @@ class NeuralNetwork:
         self.derivatives = []
         self.train_loss = []
         self.valid_loss = []
-
+        
+    def load_model(self,nn):
+        self.camadas = []
+        self.functions = []
+        self.derivatives = []
+        self.train_loss = []
+        self.valid_loss = []
+        network = np.load(nn)
+        weights = network[0]
+        functions = network[1]
+        derivatives = network[2]
+        for i in range(weights.shape[0]):
+            self.camadas.append(Layer(False,weights[i].shape[0],ws[i].shape[1]))
+            self.camadas[i].weights = weights[i]
+            self.functions.append(functions[i])
+            self.derivatives.append(derivatives[i])
+            
+    def save_model(self,name):
+        ws = [[],[],[]]
+        for i in range(nl):            
+            ws[0].append(self.camadas[i].weights)
+            ws[1].append(self.functions[i])
+            ws[2].append(self.derivative[i])
+        ws = np.array(ws)
+        np.save(name, ws)
     def calc_loss(self,H,y,group):
         Y = np.zeros((len(y),10))
         for i in range(0, len(y)):
@@ -32,6 +56,7 @@ class NeuralNetwork:
         out = len(self.camadas)-1
         m = H.shape[0]
         if group == 'train':
+        
             if self.functions[out] == sigmoid:
                 self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
