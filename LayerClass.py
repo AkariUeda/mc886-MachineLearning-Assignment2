@@ -114,12 +114,12 @@ class NeuralNetwork:
         return acc
 
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc):    
-        lim = int(X.shape[0]/bs)
-        p_train = []
-        p_valid = []
-<<<<<<< HEAD
-        vbs = int(Xv.shape[0]/lim)
+        lim = int(X.shape[0]/bs+1)
+
+        vbs = int(Xv.shape[0]/lim+1)
         for i in range(0, iteracoes):
+            p_train = []
+            p_valid = []
             for j in range(0,lim):
                 Xsl = X[bs*j:bs*j+bs]
                 ysl = y[bs*j:bs*j+bs]
@@ -130,11 +130,13 @@ class NeuralNetwork:
                 pt = self.forward(Xsl,ysl)
                 pv = self.forward_pred(Xslv,yslv)
                 self.backward(Xsl,ysl,learning_rate, lamb)
+                #print(np.argmax(pt, axis=1).shape, pt.shape)
                 p_train.extend(np.argmax(pt, axis=1))
                 p_valid.extend(np.argmax(pv, axis=1))
-            
+        #print(len(p_train), len(p_valid))   
         yl = y.reshape((y.shape[0]))
         yvl = yv.reshape((yv.shape[0]))
+        #print(len(yl), len(yvl))
         acc_train = 0
         acc_valid = 0
         for i in range(len(yl)):
@@ -149,13 +151,16 @@ class NeuralNetwork:
         #acc_train = np.sum(np.array(p_train) == np.array(y1))/len(y1)
         #acc_valid = np.sum(np.array(p_valid) == np.array(yv1))/len(yv1)
         acc_train = acc_train/len(yl)
+        
         acc_valid = acc_valid/len(yvl)
+        #print(len(yl), len(yvl), len(p_valid))
         if printacc:     
             confusion_matrix = np.zeros((10,10))
             for j in range(0,len(p_valid)):
-                confusion_matrix[yv1[j]][p_valid[j]] += 1  
+                confusion_matrix[yvl[j]][p_valid[j]] += 1  
             print("Acc treino: "+str(acc_train))        
             print("Acc valid: "+str(acc_valid))
+            print(self.valid_loss[-1].shape)
             print("Loss: "+str(self.valid_loss[-1]))
             print(confusion_matrix)
             plt.matshow(confusion_matrix)
