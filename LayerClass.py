@@ -161,12 +161,19 @@ class NeuralNetwork:
                 confusion_matrix[yvl[j]][p_valid[j]] += 1  
             print("Acc treino: "+str(acc_train))        
             print("Acc valid: "+str(acc_valid))
-            print(self.valid_loss[-1].shape)
+            #print(Xv.shape, yv.shape)
+            #print(len(self.valid_loss))
+            #print(self.valid_loss)
             print("Loss: "+str(self.valid_loss[-1]))
             print(confusion_matrix)
-            plt.matshow(confusion_matrix)
-            plt.savefig('confusion_matrix.png')
-
+            fig, ax = plt.subplots()
+            min_val, max_val = 0, 15
+            ax.matshow(confusion_matrix, cmap=plt.cm.Blues)
+            for i in range(0,10):
+                for j in range(0,10):
+                    c = confusion_matrix[j,i]
+                    ax.text(i, j, str(c), va='center', ha='center')
+            ax.grid()
             plt.close()
             plt.plot( range(0,len(self.valid_loss)), self.valid_loss, 'g-', label='Valid')
             plt.title('title')
