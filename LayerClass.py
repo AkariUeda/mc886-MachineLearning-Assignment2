@@ -111,15 +111,20 @@ class NeuralNetwork:
 
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc):    
         lim = int(X.shape[0]/bs)
+        p_train = []
+        p_valid = []
         for i in range(0, iteracoes):
             for j in range(0,lim):
                 Xsl = X[bs*j:bs*j+bs]
                 ysl = y[bs*j:bs*j+bs]
+                Xslv = Xv[bs*j:bs*j+bs]
+                yslv = yv[bs*j:bs*j+bs]
+                print(Xsl.shape, ysl.shape,Xslv.shape, yslv.shape)
                 pt = self.forward(Xsl,ysl)
-                pv = self.forward_pred(Xv,yv)
-                self.backward(X,y,learning_rate, lamb)
-                p_train = np.argmax(pt, axis=1)
-                p_valid = np.argmax(pv, axis=1)
+                pv = self.forward_pred(Xslv,yslv)
+                self.backward(Xsl,ysl,learning_rate, lamb)
+                p_train.extend(np.argmax(pt, axis=1))
+                p_valid.extend(np.argmax(pv, axis=1))
             
         y1 = y.reshape((y.shape[0]))
         yv1 = yv.reshape((yv.shape[0]))

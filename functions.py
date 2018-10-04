@@ -56,7 +56,7 @@ def grid_search(model, X,y, iteracoes):
         learning_rates = [2e-3, 2e-4, 2e-5 ,2e-6,2e-7]
         lambdas = [1e-1, 1e-2, 1e-3, 1e-4]
         media_minloss = 10e10
-
+        batch_size = 32
         # Montando sub-conjunto de validação
         m = X.shape[0]
         n = math.floor(0.7 * m)
@@ -73,7 +73,7 @@ def grid_search(model, X,y, iteracoes):
                         Xt = X[index[:n]]
                         yt = y[index[:n]]
                         test_model = model(Xt)
-                        loss = test_model.train_neuralnet(Xt, yt, Xv, yv, lamb, alpha, iteracoes, False)
+                        loss = test_model.train_neuralnet(Xt, yt, Xv, yv, lamb, alpha,batch_size,  iteracoes, False)
                         loss_fold += loss[-1]
                     loss_fold /= 5
                     print("  {:<15}  {:<10} {:<5.4}".format(alpha, lamb, loss_fold))
