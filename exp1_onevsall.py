@@ -1,91 +1,34 @@
 import numpy as np
 import math
 import pandas as pd
-from LayerClass import Layer, NeuralNetwork
+from LayerClass import OneVsAllClassifier
 from random import randrange, uniform
 from functions import *
 import get_dataset
+import sys
 
 ##
 ## ONE VS ALL
 ##
 
-class OneVsAllClassifier:
-    def __init__(self, classes):
-        self.classes = classes
-        
-    def train(self,X,yl,lr,lb,bs,it):        
-        self.neural_net = []
-        for i in range(self.classes):
-            self.neural_net.append(NeuralNetwork())
-        #y = np.zeros((yl.shape[0],self.classes))
-        y = np.repeat(yl,10,axis=1)
-        y = y.T
-      
-        for i in range(self.classes):
-            nc = y[i].reshape((y[i].shape[0], 1))
-            print("Vamos marcar todos os "+str(i)+" !!")
-            for j in range(len(nc)):
-                nc[j] = nc[j] == i 
- 
-            self.neural_net[i].camadas.append(Layer(False, X.shape[1], X.shape[1]))
-            self.neural_net[i].functions.append(identidade) 
-            self.neural_net[i].derivatives.append(identidade)
-            self.neural_net[i].forward(X,y)
-            self.neural_net[i].camadas.append(Layer(True,self.neural_net[i].camadas[0].activation.shape[1], 1 ))
-            self.neural_net[i].functions.append(sigmoid)
-            self.neural_net[i].derivatives.append(sigmoidDerivative)
 
-            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,bs,it,False)
-            print("Acc de "+str(acc)+"% para a classe "+str(i))
-
-    def classify(self,X,y):
-        probs = [];
-        for i in range(self.classes):
-            probs.append(self.neural_net[i].predict_prob(X,y))
-        return np.argmax(probs,axis=0)
-    
-    def classDumb(self,X,y):
-        res = []
-        for i in range(len(X)):
-            res.append(self.classSingle(X[i],y[i],i))
-        return res
-      
-    def classSingle(self,x,y,id):
-        bstp = -1
-        cl = -1
-        debug = []
-        for i in range(self.classes):
-            nval = self.neural_net[i].predict_prob(x,y)
-            if nval > bstp:
-                bstp = nval
-                cl = i
-            debug.append("O item "+str(id)+" pertence a "+str(i)+" com chance "+str(nval)+" deveria ser "+str(y))
-
-        if(cl != y):
-            for l in debug:
-                print(l)
-        return cl
 def main():
     train_set, valid_set, train_labels, valid_labels = get_dataset.main()
     X = train_set
     y = train_labels
     Xv = valid_set
     yv = valid_labels
-  
-    print("Vamos fazer one vs all no toy set!")
-    cl = OneVsAllClassifier(10)
-    cl.train(X,y,0.02,0.002,256,1)
-    results = cl.classify(Xv,yv)
-    erro = 0    
-    for i in range(len(results)):
-        if int(results[i]) != int(yv[i]):
-            erro += 1
-            print("Erro: "+str(i)+" foi classificado: "+str(int(results[i]))+" VS esperado "+str(int(yv[i])))
-        else:
-            print("Acerto: "+str(i)+" foi classificado: "+str(int(results[i]))+" VS esperado "+str(int(yv[i])))
-
-    print("Erramos "+str(erro)+" previsoes no chique")
+    iteracoes_grid = int(sys.argv[1])
+    iteracoes_train = int(sys.argv[2])
+    batch_size = 256
+    print_acc = True
+    alpha = 0.02
+    lamb = 0.001
+    alpha, lamb = grid_search(OneVsAllClassifier, X, y, iteracoes_grid)
+    #print("Vamos fazer one vs all no toy set!")
+    cl = OneVsAllClassifier(X)
+    cl.train_neuralnet(X,y,Xv,yv,alpha,lamb,batch_size,iteracoes_train,print_acc, 'oneVall')
+    
 
 if __name__ == "__main__":
     main()
