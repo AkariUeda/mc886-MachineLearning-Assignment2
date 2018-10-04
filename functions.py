@@ -56,7 +56,7 @@ def grid_search(model, X,y, iteracoes):
         learning_rates = [2e-3, 2e-4, 2e-5 ,2e-6,2e-7]
         lambdas = [1e-1, 1e-2, 1e-3, 1e-4]
         media_minloss = 10e10
-        batch_size = 32
+        batch_size = 256
         # Montando sub-conjunto de validação
         m = X.shape[0]
         n = math.floor(0.7 * m)

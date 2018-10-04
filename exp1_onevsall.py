@@ -23,7 +23,7 @@ class OneVsAllClassifier:
         y = y.T
       
         for i in range(self.classes):
-            nc = y[i].reshape((400, 1))
+            nc = y[i].reshape((y[i].shape[0], 1))
             print("Vamos marcar todos os "+str(i)+" !!")
             #print(nc.T)
             for j in range(len(nc)):
@@ -44,7 +44,7 @@ class OneVsAllClassifier:
             self.neural_net[i].functions.append(sigmoid)
             self.neural_net[i].derivatives.append(sigmoidDerivative)
             #print("Segunda camada adicionada") 
-            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,bs,it,False)
+            acc = self.neural_net[i].train_onevsall(X,nc,lr,lb,bs,it,True)
             print("Acc de "+str(acc)+"% para a classe "+str(i))
 
     def classify(self,X,y):
@@ -94,13 +94,17 @@ def main():
     #############################
     print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(10)
-    cl.train(X,y,0.02,0.002,32,100)
+    cl.train(X,y,0.02,0.002,256,100)
     results = cl.classify(Xv,yv)
     erro = 0    
     #erro = sum(results != yv)
     for i in range(len(results)):
-        erro += results[i] != yv[i]
-        print(str(i)+" foi classificado: "+str(results[i])+" VS esperado "+str(train_labels[i]))
+        if int(results[i]) != int(yv[i]):
+            erro += 1
+            print("Erro: "+str(i)+" foi classificado: "+str(int(results[i]))+" VS esperado "+str(int(yv[i])))
+        else:
+            print("Acerto: "+str(i)+" foi classificado: "+str(int(results[i]))+" VS esperado "+str(int(yv[i])))
+
     print("Erramos "+str(erro)+" previsoes no chique")
 
 if __name__ == "__main__":

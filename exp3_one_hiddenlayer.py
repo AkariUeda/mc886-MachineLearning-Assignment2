@@ -42,9 +42,10 @@ def main():
     iteracoes_train = int(sys.argv[2])
 
     # Treinando
+    batch_size= 256
     learning_rate, lamb = grid_search(new_neuralnet, train_set, train_labels, iteracoes_grid)
     print_acuracia = True
-    neural_net.train_neuralnet(train_set, train_labels, valid_set, valid_labels, lamb, learning_rate,iteracoes_train, print_acuracia)
+    neural_net.train_neuralnet(train_set, train_labels, valid_set, valid_labels, lamb, learning_rate,batch_size,iteracoes_train, print_acuracia)
 
 
 if __name__ == "__main__":

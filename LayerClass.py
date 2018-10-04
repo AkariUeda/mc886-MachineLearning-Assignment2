@@ -104,7 +104,11 @@ class NeuralNetwork:
                 preds = np.copy(self.camadas[1].activation)
                 preds[preds > 0.5] = 1
                 preds[preds <=0.5] = 0
-                acc = sum(preds == ysl)/len(ysl)
+                acc = 0
+                for i in range(len(preds)):
+                    if preds[i] == ysl[i]:
+                        acc+=1
+                acc = acc/len(ysl)
                 if printacc:               
                     print("Acc: "+str(acc))
         return acc
@@ -113,24 +117,38 @@ class NeuralNetwork:
         lim = int(X.shape[0]/bs)
         p_train = []
         p_valid = []
+        vbs = int(Xv.shape[0]/lim)
         for i in range(0, iteracoes):
             for j in range(0,lim):
                 Xsl = X[bs*j:bs*j+bs]
                 ysl = y[bs*j:bs*j+bs]
-                Xslv = Xv[bs*j:bs*j+bs]
-                yslv = yv[bs*j:bs*j+bs]
-                print(Xsl.shape, ysl.shape,Xslv.shape, yslv.shape)
+                Xslv = Xv[vbs*j:vbs*j+vbs]
+                yslv = yv[vbs*j:vbs*j+vbs]
+                #print(X.shape,y.shape,Xv.shape,yv.shape)
+                #print(Xsl.shape,ysl.shape,Xslv.shape,yslv.shape)
                 pt = self.forward(Xsl,ysl)
                 pv = self.forward_pred(Xslv,yslv)
                 self.backward(Xsl,ysl,learning_rate, lamb)
                 p_train.extend(np.argmax(pt, axis=1))
                 p_valid.extend(np.argmax(pv, axis=1))
             
-        y1 = y.reshape((y.shape[0]))
-        yv1 = yv.reshape((yv.shape[0]))
-        
-        acc_train = sum(p_train == y1)/len(y1)
-        acc_valid = sum(p_valid == yv1)/len(yv1)
+        yl = y.reshape((y.shape[0]))
+        yvl = yv.reshape((yv.shape[0]))
+        acc_train = 0
+        acc_valid = 0
+        for i in range(len(yl)):
+            if p_train[i] == yl[i]:
+                acc_train+=1
+        for i in range(len(yvl)):
+            if p_valid[i] == yvl[i]:
+                acc_valid+=1
+        #print(acc_train)
+        #print(acc_valid)
+        #Essa expressao chique simplismente nao funcionava pro que a gnt queria
+        #acc_train = np.sum(np.array(p_train) == np.array(y1))/len(y1)
+        #acc_valid = np.sum(np.array(p_valid) == np.array(yv1))/len(yv1)
+        acc_train = acc_train/len(yl)
+        acc_valid = acc_valid/len(yvl)
         if printacc:               
             print("Acc treino: "+str(acc_train))
             print("Acc valid: "+str(acc_valid))
