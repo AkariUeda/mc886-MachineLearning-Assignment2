@@ -55,18 +55,20 @@ class NeuralNetwork:
             Y[i][y[i]] = 1
         out = len(self.camadas)-1
         m = H.shape[0]
-        if group == 'train':
-        
+        cost = 0
+        if self.functions[out] == sigmoid:
+            cost = np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H)))))
+        elif self.functions[out] == softmax:
+            cost = np.sum(-1*np.sum(Y *np.log(H+1e-9))/m)
+        if group == 'train':        
             if self.functions[out] == sigmoid:
-                self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
+                self.train_loss.append(cost)
             elif self.functions[out] == softmax:
-                cost = np.sum(-1*np.sum(Y *np.log(H+1e-9))/m)
                 self.train_loss.append(cost)
         elif group == 'valid':
             if self.functions[out] == sigmoid:
-                self.valid_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
+                self.valid_loss.append(cost)
             elif self.functions[out] == softmax:
-                cost = np.sum(-1*np.sum(Y *np.log(H+1e-9))/m)
                 self.valid_loss.append(cost)
         return 
 
@@ -78,7 +80,13 @@ class NeuralNetwork:
             self.camadas[i].activation = self.functions[i](np.add(self.camadas[i-1].activation.dot(self.camadas[i].weights),self.camadas[i].bias.T))
         self.calc_loss(self.camadas[out].activation, y, 'train')
         return self.camadas[out].activation
-
+        
+    def get_results(self,X,y,experiment):
+        p_valid = np.argmax(self.forward_pred(X,y),axis=1)
+        y = y.reshape((y.shape[0]))
+        self.print_results(experiment,y,p_valid)
+        return
+        
     def forward_pred(self,activation,y):        
         for i in range(1,len(self.camadas)):
             activation = self.functions[i](np.add(activation.dot(self.camadas[i].weights),self.camadas[i].bias.T))
@@ -140,35 +148,44 @@ class NeuralNetwork:
         yl = y.reshape((y.shape[0]))
         yvl = yv.reshape((yv.shape[0]))
         #print(len(yl), len(yvl))
+        
+        if printacc:     
+            self.print_results(experiment,yvl,p_valid,yl,p_train)
+
+        return self.valid_loss
+
+    def print_results(self,experiment,yvl,p_valid,yl=None,p_train=None,print_iter=False):
         acc_train = 0
         acc_valid = 0
-        for i in range(len(yl)):
-            if p_train[i] == yl[i]:
-                acc_train+=1
+        if(p_train != None):
+            for i in range(len(yl)):
+                if p_train[i] == yl[i]:
+                    acc_train+=1
+            acc_train = acc_train/len(yl)  
+            print("Acc treino: "+str(acc_train))  
+            
         for i in range(len(yvl)):
             if p_valid[i] == yvl[i]:
                 acc_valid+=1
-
-        acc_train = acc_train/len(yl)  
         acc_valid = acc_valid/len(yvl)
-        if printacc:     
-            confusion_matrix = np.zeros((10,10))
-            for j in range(0,len(p_valid)):
-                confusion_matrix[yvl[j]][p_valid[j]] += 1  
-            print("Acc treino: "+str(acc_train))        
-            print("Acc valid: "+str(acc_valid))
+        
+        confusion_matrix = np.zeros((10,10))
+        for j in range(0,len(p_valid)):
+            confusion_matrix[yvl[j]][p_valid[j]] += 1  
+            
+        
+        print("Acc valid: "+str(acc_valid))
+        print("Loss: "+str(self.valid_loss[-1]))
 
-            print("Loss: "+str(self.valid_loss[-1]))
-
-            df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
-            plt.figure(figsize = (10,7))
-            ax = sn.heatmap(df_cm, annot=True, cmap="Blues")
-            ax.set(xlabel='Predicted', ylabel='Real')
-            plt.savefig(experiment+'_confusion_matrix.png')
-            plt.show()
-            plt.close()
-
-            plt.figure(1)
+        df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
+        plt.figure(figsize = (10,7))
+        ax = sn.heatmap(df_cm, annot=True, cmap="Blues")
+        ax.set(xlabel='Predicted', ylabel='Real')
+        plt.savefig(experiment+'_confusion_matrix.png')
+        plt.show()
+        plt.close()
+        if print_iter:
+            plt.figure(1)       
             plt.subplot(211)
             plt.plot( range(0,len(self.train_loss)), self.train_loss, 'r-', label='Train')
             plt.ylabel('Cost')
@@ -179,10 +196,7 @@ class NeuralNetwork:
             plt.legend()
             plt.savefig(experiment+'_training.png')
             plt.show()
-
-        return self.valid_loss
-
-
+        return 
 
     def predict_prob(self,X,y):
         camadas = np.copy(self.camadas)
