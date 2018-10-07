@@ -60,13 +60,13 @@ class NeuralNetwork:
             if self.functions[out] == sigmoid:
                 self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))
+                cost = np.sum(-1*np.sum(Y *np.log(H+1e-9))/m)
                 self.train_loss.append(cost)
         elif group == 'valid':
             if self.functions[out] == sigmoid:
                 self.valid_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))
             elif self.functions[out] == softmax:
-                cost = np.sum(-Y * np.log(H))
+                cost = np.sum(-1*np.sum(Y *np.log(H+1e-9))/m)
                 self.valid_loss.append(cost)
         return 
 
@@ -214,8 +214,21 @@ class OneVsAllClassifier:
         Y = np.zeros((len(y),10))
         for i in range(0, len(y)):
             Y[i][y[i]] = 1      
-        self.train_loss.append(np.sum(-1* np.add(np.multiply(y,(1/H)) , np.multiply(np.subtract(1, y),(1/np.subtract(1,H))))))        
-        self.valid_loss.append(np.sum(-1* np.add(np.multiply(yv,(1/Hv)) , np.multiply(np.subtract(1, yv),(1/np.subtract(1,Hv))))))        
+        Yv = np.zeros((len(yv),10))
+        for i in range(0, len(yv)):
+            Yv[i][yv[i]] = 1     
+        m = H.shape[0]
+        mv = Hv.shape[0]
+        #self.train_loss.append((-1/m)*np.sum(Y*np.log(H)+(1-Y)*np.log(1-H)))
+        #self.valid_loss.append((-1/mv)*np.sum(Yv*np.log(Hv)+(1-Yv)*np.log(1-Hv)))    
+       # print(Y[0].tolist(),H[0].tolist())
+        vl = 0
+        tl = 0
+        
+        self.train_loss.append(-1*np.sum(Y *np.log(H+1e-9))/m)
+        self.valid_loss.append(-1*np.sum(Yv * np.log(Hv+1e-9))/mv)
+        #self.train_loss.append(tl)
+        #self.valid_loss.append(vl)
 
         return 
 
@@ -223,34 +236,37 @@ class OneVsAllClassifier:
         #y = np.zeros((yl.shape[0],self.classes))
         y = np.repeat(yl,self.classes,axis=1).T
         yv = np.repeat(yvl,self.classes,axis=1).T
-       
-        for i in range(self.classes):
-            nc = y[i].reshape((y[i].shape[0], 1))
-            ncv = yv[i].reshape((yv[i].shape[0], 1))
+         
+        nc = []
+        ncv = []
+        for i in range(self.classes):            
+            nc.append(y[i].reshape((y[i].shape[0], 1)))
+            ncv.append(yv[i].reshape((yv[i].shape[0], 1)))
+            for j in range(len(nc[i])):
+                nc[i][j] = nc[i][j] == i 
+            for j in range(len(ncv[i])):
+                ncv[i][j] = ncv[i][j] == i 
 
-            for j in range(len(nc)):
-                nc[j] = nc[j] == i 
-            for j in range(len(ncv)):
-                ncv[j] = ncv[j] == i 
+        for i in range(it):    
+            for j in range(self.classes):   
+                self.neural_net[j].train_neuralnet(X,nc[j],Xv,ncv[j],lr,lb,bs,1,False,experiment)            
+            r = self.classify(X,y,raw=True)
+            rs = np.zeros([r.shape[0],r.shape[1]])
+            for i in range(rs.shape[0]):
+                 for j in range(rs.shape[1]):
+                    rs[i][j] = np.asscalar(r[i][j])
+            results = rs.T
             
-            self.neural_net[i].train_neuralnet(X,nc,Xv,ncv,lr,lb,bs,it,False,experiment)
-
-        r = self.classify(X,y,raw=True)
-        rs = np.zeros([r.shape[0],r.shape[1]])
-        for i in range(rs.shape[0]):
-             for j in range(rs.shape[1]):
-                rs[i][j] = np.asscalar(r[i][j])
-        results = rs.T
-        
-        r = self.classify(Xv,yv,raw=True)
-        rs = np.zeros([r.shape[0],r.shape[1]])
-        for i in range(rs.shape[0]):
-             for j in range(rs.shape[1]):
-                rs[i][j] = np.asscalar(r[i][j])
-        resultsv = rs.T
-        self.calc_loss(results,y.T,resultsv,yv.T)    
+            r = self.classify(Xv,yv,raw=True)
+            rs = np.zeros([r.shape[0],r.shape[1]])
+            for i in range(rs.shape[0]):
+                 for j in range(rs.shape[1]):
+                    rs[i][j] = np.asscalar(r[i][j])
+            resultsv = rs.T
+            self.calc_loss(results,yl,resultsv,yvl)   
+            
         p_train = self.classify(X,y)
-        p_valid = self.classify(Xv,yvl)
+        p_valid = self.classify(Xv,yv)
 
         acc_train = 0
         acc_valid = 0
