@@ -13,6 +13,14 @@ def relu(x):
 def reluDerivative(x):
     return np.greater(x, 0).astype(int)
 
+def leakyrelu(x):
+    return np.where(x > 0, x, x * 0.01)
+
+def leakyreluDerivative(x):
+    dx = np.ones_like(x)
+    dx[x < 0] = 0.01
+    return dx
+
 def sig(x):
   x = np.clip( x, -500, 500 )
   x = 1 / (1 + math.exp(-x))

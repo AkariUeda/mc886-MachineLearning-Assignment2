@@ -179,7 +179,7 @@ class NeuralNetwork:
 
         df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
         plt.figure(figsize = (10,7))
-        ax = sn.heatmap(df_cm, annot=True, cmap="Blues")
+        ax = sn.heatmap(df_cm, annot=True, cmap="Blues", fmt='g')
         ax.set(xlabel='Predicted', ylabel='Real')
         plt.savefig(experiment+'_confusion_matrix.png')
         plt.show()
@@ -233,16 +233,12 @@ class OneVsAllClassifier:
             Yv[i][yv[i]] = 1     
         m = H.shape[0]
         mv = Hv.shape[0]
-        #self.train_loss.append((-1/m)*np.sum(Y*np.log(H)+(1-Y)*np.log(1-H)))
-        #self.valid_loss.append((-1/mv)*np.sum(Yv*np.log(Hv)+(1-Yv)*np.log(1-Hv)))    
-       # print(Y[0].tolist(),H[0].tolist())
         vl = 0
         tl = 0
         
         self.train_loss.append(-1*np.sum(Y *np.log(H+1e-9))/m)
         self.valid_loss.append(-1*np.sum(Yv * np.log(Hv+1e-9))/mv)
-        #self.train_loss.append(tl)
-        #self.valid_loss.append(vl)
+
 
         return 
 
@@ -308,8 +304,6 @@ class OneVsAllClassifier:
             plt.ylabel('Real')
             sn.heatmap(df_cm, annot=True, cmap="Blues")
             plt.savefig(experiment+'_confusion_matrix.png')
-            plt.show()
-            plt.close()
 
             plt.figure(1)
             plt.subplot(211)
@@ -321,7 +315,6 @@ class OneVsAllClassifier:
             plt.xlabel('Iterations')
             plt.legend()
             plt.savefig(experiment+'_training.png')
-            plt.show()
 
         return self.valid_loss
 

@@ -36,19 +36,19 @@ def main():
     print("Lendo dataset...")
 
 
-    #train_set    = np.genfromtxt('fashion-mnist_train-set.csv', delimiter=',')[1:,1:]
-    #valid_set    = np.genfromtxt('fashion-mnist_valid-set.csv', delimiter=',')[1:,1:]
-    #train_labels = np.genfromtxt('fashion-mnist_train-labels.csv', delimiter=',')[:,1]
-    #valid_labels = np.genfromtxt('fashion-mnist_valid-labels.csv', delimiter=',')[:,1]
+    train_set    = np.genfromtxt('fashion-mnist_train-set.csv', delimiter=',')[1:,1:]
+    valid_set    = np.genfromtxt('fashion-mnist_valid-set.csv', delimiter=',')[1:,1:]
+    train_labels = np.genfromtxt('fashion-mnist_train-labels.csv', delimiter=',')[:,1]
+    valid_labels = np.genfromtxt('fashion-mnist_valid-labels.csv', delimiter=',')[:,1]
 
     # np.savetxt('toy_fashion-mnist_valid-set.csv', valid_set, delimiter=',')
     # np.savetxt('toy_fashion-mnist_train-labels.csv', train_labels, delimiter=',')
     # np.savetxt('toy_fashion-mnist_valid-labels.csv', valid_labels, delimiter=',')
     # np.savetxt('toy_fashion-mnist_train-set.csv', train_set, delimiter=',')
-    train_set    = np.genfromtxt('toy_fashion-mnist_train-set.csv', delimiter=',')
-    valid_set    = np.genfromtxt('toy_fashion-mnist_valid-set.csv', delimiter=',')
-    train_labels = np.genfromtxt('toy_fashion-mnist_train-labels.csv', delimiter=',')
-    valid_labels = np.genfromtxt('toy_fashion-mnist_valid-labels.csv', delimiter=',')
+    # train_set    = np.genfromtxt('toy_fashion-mnist_train-set.csv', delimiter=',')
+    # valid_set    = np.genfromtxt('toy_fashion-mnist_valid-set.csv', delimiter=',')
+    # train_labels = np.genfromtxt('toy_fashion-mnist_train-labels.csv', delimiter=',')
+    # valid_labels = np.genfromtxt('toy_fashion-mnist_valid-labels.csv', delimiter=',')
 
     #print(train_set.shape, valid_set.shape, train_labels.shape, valid_labels.shape)
 
