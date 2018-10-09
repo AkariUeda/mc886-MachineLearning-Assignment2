@@ -1,12 +1,18 @@
 import numpy as np
 import math
+import copy
 from functions import relu, reluDerivative, sigmoid, sigmoidDerivative, softmax, softmax_derivative, identidade
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt        
 import seaborn as sn
 import pandas as pd 
 import warnings
 warnings.filterwarnings("ignore")
 
+
+#   Layer class:
+#       A simple class that holds together the weights, 
+#       bias and activation matrices necessary for a layer 
+#
 class Layer:
     def __init__(self, random, input_size, output_size):
         self.activation = np.array((output_size,1))
@@ -17,6 +23,11 @@ class Layer:
             self.weights = np.identity(input_size)
             self.bias = np.zeros(output_size)
 
+#   NeuralNetwork class:
+#       A class that defines a neural network with a variable amount 
+#       of layers. It defines some key functions for a NN, such as
+#       feed forward, backpropagate, and train
+#       It also hosts some helper functions to facilitate its usage
 class NeuralNetwork:
     def __init__(self):
         self.camadas = []
@@ -27,6 +38,9 @@ class NeuralNetwork:
         self.best_model = []
         self.best_cost = -1
 
+    #Given a saved .npy array, uses it to create a new, already trained, NN
+    #This does not check for errors if the array does not correspond to a NN
+    #so use with care
     def load_model(self,nn):
         self.camadas = []
         self.functions = []
@@ -40,21 +54,26 @@ class NeuralNetwork:
         for i in range(weights.shape[0]):
             self.camadas.append(Layer(False,weights[i].shape[0],weights[i].shape[1]))
             self.camadas[i].weights = weights[i].copy()
-            self.functions.append(functions[i])
+            self.functions.append   (functions[i])
             self.derivatives.append(derivatives[i])
 
+    #Takes the current model and saves it as a list, overwriting the previous best model
+    #Based on validation loss
     def model_to_list(self):
         ws = [[],[],[]]
         for i in range(len(self.camadas)):            
             ws[0].append(self.camadas[i].weights)
             ws[1].append(self.functions[i])
             ws[2].append(self.derivatives[i])
-        self.best_model = ws
+        self.best_model = copy.deepcopy(ws)
 
-    def save_model(self,name):        
-        ws = np.array(self.best_model)
+    #Simply saves the best model produced by this training session into a .npy file
+    def save_model(self,name):    
+        ws = np.array(self.best_model)    
         np.save(name, ws)
 
+    #Given a prediction and a label, calculates the resulting loss for this network
+    #And appends it to the appropriate array
     def calc_loss(self,H,y,group):
         Y = np.zeros((len(y),10))
         for i in range(0, len(y)):
@@ -78,6 +97,7 @@ class NeuralNetwork:
                 self.valid_loss.append(cost)
         return 
 
+    #Pushes a set of examples forward in the network, updating the activation for each layer as it goes along
     def forward(self,X,y):
         out = len(self.camadas)-1
         inp = 0
@@ -87,27 +107,34 @@ class NeuralNetwork:
         self.calc_loss(self.camadas[out].activation, y, 'train')
         return self.camadas[out].activation
         
+    #Given a set of examples and their labes, predicts and ouptus the results
+    #As a heatmap
     def get_results(self,X,y,experiment):
         p_valid = np.argmax(self.forward_pred(X,y),axis=1)
         y = y.reshape((y.shape[0]))
         self.print_results(experiment,y,p_valid)
         return
         
+    #Special case of the forward function, doesn't alter the activation of the layers, instead
+    #Generating a copy just to predict the result the network would output for this example
     def forward_pred(self,activation,y):        
         for i in range(1,len(self.camadas)):
             activation = self.functions[i](np.add(activation.dot(self.camadas[i].weights),self.camadas[i].bias.T))
         self.calc_loss(activation, y, 'valid')
         return activation
 
+    #Goes back through the network, correcting the weights with respect to how much they helped the final result
     def backward(self,  X, y, learning_rate, lamb):
         out = len(self.camadas)-1
         m = X.shape[0]
+        
+        #Note that we have a special case for each of the two functions used in the output layer
+        #Since the softmax and the sigmoid can't be differentiated in the same way
         if self.functions[out] == softmax:
             Y = np.zeros((len(y),10))
             for i in range(0, len(y)):
                 Y[i][y[i]] = 1
             self.camadas[out].delta = np.subtract(self.camadas[out].activation,Y)
-
         if self.functions[out] == sigmoid:
             self.camadas[out].error = self.camadas[out].activation - y
             self.camadas[out].delta = self.camadas[out].error*self.derivatives[out](self.camadas[out].activation)
@@ -123,6 +150,8 @@ class NeuralNetwork:
             b = b.reshape((len(b),1))
             self.camadas[i].bias -= b * learning_rate
 
+    #Deprecated function, was used in the one vs all regressor
+    #Replaced by predict_prob
     def predict(self,X,y):
         camadas = np.copy(self.camadas)
         out = len(camadas)-1
@@ -135,9 +164,15 @@ class NeuralNetwork:
         acc = sum(preds == y)
         print("Acurácia validação: "+str(acc/len(y)))
 
+    #The main function, it receives the training and validation sets produces the expected results, loss per iteration and
+    #classification heatmap associated with the training session.
     def train_neuralnet(self,X,y, Xv, yv, lamb, learning_rate,bs,iteracoes, printacc, experiment):    
-        lim = int(math.ceil(X.shape[0]/bs))
-        vbs = int(math.ceil(Xv.shape[0]/lim))
+        lim = int(math.ceil(X.shape[0]/bs)) #Simple calculation of how many batches we will have per epoch
+                                            #Bear in mind that the size of the batch is never checked, so be sure to 
+                                            #Use a batch size that makes sense
+        
+        #Now, for every iteration, we simply move the data forward and back in the net,
+        #Logging the appropriate values at each step.
         for i in range(0, iteracoes):
             p_train = []
             p_valid = []
@@ -146,7 +181,6 @@ class NeuralNetwork:
                 ysl = y[bs*j:bs*j+bs]
                 pt = self.forward(Xsl,ysl)
                 self.backward(Xsl,ysl,learning_rate, lamb)
-                #print(np.argmax(pt, axis=1).shape, pt.shape)
                 p_train.extend(np.argmax(pt, axis=1))            
             pv = self.forward_pred(Xv,yv)    
             p_valid.extend(np.argmax(pv, axis=1))
@@ -156,17 +190,15 @@ class NeuralNetwork:
         if(len(self.train_loss) != iteracoes and iteracoes != 1):
             self.train_loss = np.mean(np.array(self.train_loss).reshape(-1,lim),axis=1).tolist()
 
-        #print(len(p_train), len(p_valid))   
         yl = y.reshape((y.shape[0]))
-
         yvl = yv.reshape((yv.shape[0]))
-        #print(len(yl), len(yvl))
         
         if printacc:     
             self.print_results(experiment,yvl,p_valid,yl,p_train,True)
 
         return self.valid_loss
-
+     
+    #Helper function to print graphs associated with the results for the network
     def print_results(self,experiment,yvl,p_valid,yl=None,p_train=None,print_iter=False):
         acc_train = 0
         acc_valid = 0
@@ -210,7 +242,8 @@ class NeuralNetwork:
             plt.savefig(experiment+'_training.png')
             plt.show()
         return 
-
+    
+    #Simple helper function, that gives out the probability that a certain item belongs to a particular class
     def predict_prob(self,X,y):
         camadas = np.copy(self.camadas)
         out = len(camadas)-1
@@ -220,7 +253,7 @@ class NeuralNetwork:
             camadas[i].activation = self.functions[i](camadas[i-1].activation.dot(camadas[i].weights))
         preds = camadas[out].activation
         return preds
-        
+      
 class OneVsAllClassifier:
     def __init__(self,X):
         self.classes = 10
@@ -257,7 +290,6 @@ class OneVsAllClassifier:
 
     def train_neuralnet(self,X,yl,Xv,yvl,lr,lb,bs,it,printacc,experiment):    
         print("Training model...")
-        #y = np.zeros((yl.shape[0],self.classes))
         y = np.repeat(yl,self.classes,axis=1).T
         yv = np.repeat(yvl,self.classes,axis=1).T
          
@@ -307,7 +339,7 @@ class OneVsAllClassifier:
             self.print_results(experiment,yvl,p_valid,yl,p_train.tolist(),True)
 
         return self.valid_loss
-
+   
     def print_results(self,experiment,yvl,p_valid,yl=None,p_train=None,print_iter=False):
         acc_train = 0
         acc_valid = 0
@@ -351,7 +383,7 @@ class OneVsAllClassifier:
             plt.savefig(experiment+'_training.png')
             plt.show()
         return 
-    
+     
     
     def classify(self,X,y,raw=False):
         probs = [];
