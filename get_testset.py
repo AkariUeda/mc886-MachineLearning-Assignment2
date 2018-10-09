@@ -12,20 +12,22 @@ def main():
     ##          Lendo e preparando o Dataset
     ##
 
-    dataset = pd.read_csv('fashion-mnist_train.csv')   
+    dataset = pd.read_csv('fashion-mnist_test.csv')   
     dataset = np.array(dataset)
-    test_set  = dataset[:,2:]
-    test_labels = dataset[:,1]
+    test_set  = dataset[:,1:]
+    test_labels = dataset[:,0]
     np.savetxt('fashion-mnist_test-set.csv', test_set, delimiter=',',fmt='%i')
     np.savetxt('fashion-mnist_test-labels.csv', test_labels, delimiter=',',fmt='%i')    
 
     print("Lendo dataset...")
 
     train_set    = np.genfromtxt('fashion-mnist_train-set.csv', delimiter=',')[1:,1:]
-    test_set    = np.genfromtxt('fashion-mnist_test-set.csv', delimiter=',')[1:,1:]
+    test_set    = np.genfromtxt('fashion-mnist_test-set.csv', delimiter=',')
     train_labels = np.genfromtxt('fashion-mnist_train-labels.csv', delimiter=',')[:,1]
-    test_labels = np.genfromtxt('fashion-mnist_test-labels.csv', delimiter=',')[:,1]
+    test_labels = np.genfromtxt('fashion-mnist_test-labels.csv', delimiter=',')
 
+    print(test_set.shape)
+    print(test_set[0:3])
     print("Dataset carregado com sucesso")
 
     train_set = train_set.astype(int)

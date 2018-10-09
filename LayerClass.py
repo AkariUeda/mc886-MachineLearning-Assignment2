@@ -34,6 +34,7 @@ class NeuralNetwork:
         self.train_loss = []
         self.valid_loss = []
         network = np.load(nn)
+        print(network.shape)
         weights = network[0]
         functions = network[1]
         derivatives = network[2]
@@ -255,8 +256,8 @@ class OneVsAllClassifier:
         self.valid_loss.append(-1*np.sum(Yv * np.log(Hv+1e-9))/mv)
         return 
 
-
     def train_neuralnet(self,X,yl,Xv,yvl,lr,lb,bs,it,printacc,experiment):    
+        print("Training model...")
         #y = np.zeros((yl.shape[0],self.classes))
         y = np.repeat(yl,self.classes,axis=1).T
         yv = np.repeat(yvl,self.classes,axis=1).T
