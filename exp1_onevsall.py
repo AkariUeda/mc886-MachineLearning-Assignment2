@@ -28,7 +28,7 @@ def main():
     #print("Vamos fazer one vs all no toy set!")
     cl = OneVsAllClassifier(X)
     cl.train_neuralnet(X,y,Xv,yv,alpha,lamb,batch_size,iteracoes_train,print_acc, 'oneVall')
-    
+   
 
 if __name__ == "__main__":
     main()

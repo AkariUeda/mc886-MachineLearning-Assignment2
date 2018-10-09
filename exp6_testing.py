@@ -13,16 +13,14 @@ import sys
 
 
 def main():
-    train_set, valid_set, train_labels, valid_labels = get_dataset.main()
-    X = train_set
-    y = train_labels
-    Xv = valid_set
-    yv = valid_labels
+    test_set, test_labels = get_testset.main()
+    X = test_set
+    y = test_labels
     modelo = sys.argv[1]
     #print("Vamos fazer one vs all no toy set!")
     cl = NeuralNetwork()
     cl.load_model(modelo)
-    cl.get_results(Xv,yv,"exp5-teste")
+    cl.get_results(X,y,"exp5-teste")
     
 
 if __name__ == "__main__":

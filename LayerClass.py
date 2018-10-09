@@ -24,7 +24,9 @@ class NeuralNetwork:
         self.derivatives = []
         self.train_loss = []
         self.valid_loss = []
-        
+        self.best_model = []
+        self.best_cost = -1
+
     def load_model(self,nn):
         self.camadas = []
         self.functions = []
@@ -40,15 +42,19 @@ class NeuralNetwork:
             self.camadas[i].weights = weights[i].copy()
             self.functions.append(functions[i])
             self.derivatives.append(derivatives[i])
-            
-    def save_model(self,name):
+
+    def model_to_list(self):
         ws = [[],[],[]]
         for i in range(len(self.camadas)):            
             ws[0].append(self.camadas[i].weights)
             ws[1].append(self.functions[i])
             ws[2].append(self.derivatives[i])
-        ws = np.array(ws)
+        self.best_model = ws
+
+    def save_model(self,name):        
+        ws = np.array(self.best_model)
         np.save(name, ws)
+
     def calc_loss(self,H,y,group):
         Y = np.zeros((len(y),10))
         for i in range(0, len(y)):
@@ -144,13 +150,20 @@ class NeuralNetwork:
                 p_train.extend(np.argmax(pt, axis=1))            
             pv = self.forward_pred(Xv,yv)    
             p_valid.extend(np.argmax(pv, axis=1))
+            if self.best_cost == -1 or self.best_cost > self.valid_loss[i]:
+                self.best_cost = self.valid_loss[i]
+                self.best_model = self.model_to_list()
+        if(len(self.train_loss) != iteracoes and iteracoes != 1):
+            self.train_loss = np.mean(np.array(self.train_loss).reshape(-1,lim),axis=1).tolist()
+
         #print(len(p_train), len(p_valid))   
         yl = y.reshape((y.shape[0]))
+
         yvl = yv.reshape((yv.shape[0]))
         #print(len(yl), len(yvl))
         
         if printacc:     
-            self.print_results(experiment,yvl,p_valid,yl,p_train)
+            self.print_results(experiment,yvl,p_valid,yl,p_train,True)
 
         return self.valid_loss
 
@@ -214,16 +227,18 @@ class OneVsAllClassifier:
         self.valid_loss = [] 
         self.train_loss = []   
         self.neural_net = []
+        self.best_model = []
+        self.best_cost = -1
         for i in range(self.classes):
             self.neural_net.append(NeuralNetwork())
         for i in range(self.classes):
             self.neural_net[i].camadas.append(Layer(False, X.shape[1], X.shape[1]))
             self.neural_net[i].functions.append(identidade) 
             self.neural_net[i].derivatives.append(identidade)
-
             self.neural_net[i].camadas.append(Layer(True,X.shape[1],1))
             self.neural_net[i].functions.append(sigmoid)
             self.neural_net[i].derivatives.append(sigmoidDerivative)
+
     def calc_loss(self,H,y,Hv,yv):
         Y = np.zeros((len(y),10))
         for i in range(0, len(y)):
@@ -238,9 +253,8 @@ class OneVsAllClassifier:
         
         self.train_loss.append(-1*np.sum(Y *np.log(H+1e-9))/m)
         self.valid_loss.append(-1*np.sum(Yv * np.log(Hv+1e-9))/mv)
-
-
         return 
+
 
     def train_neuralnet(self,X,yl,Xv,yvl,lr,lb,bs,it,printacc,experiment):    
         #y = np.zeros((yl.shape[0],self.classes))
@@ -262,19 +276,19 @@ class OneVsAllClassifier:
                 self.neural_net[j].train_neuralnet(X,nc[j],Xv,ncv[j],lr,lb,bs,1,False,experiment)            
             r = self.classify(X,y,raw=True)
             rs = np.zeros([r.shape[0],r.shape[1]])
-            for i in range(rs.shape[0]):
-                 for j in range(rs.shape[1]):
-                    rs[i][j] = np.asscalar(r[i][j])
+            for k in range(rs.shape[0]):
+                 for l in range(rs.shape[1]):
+                    rs[k][l] = np.asscalar(r[k][l])
             results = rs.T
             
             r = self.classify(Xv,yv,raw=True)
             rs = np.zeros([r.shape[0],r.shape[1]])
-            for i in range(rs.shape[0]):
-                 for j in range(rs.shape[1]):
-                    rs[i][j] = np.asscalar(r[i][j])
+            for k in range(rs.shape[0]):
+                 for l in range(rs.shape[1]):
+                    rs[k][l] = np.asscalar(r[k][l])
             resultsv = rs.T
-            self.calc_loss(results,yl,resultsv,yvl)   
-            
+            self.calc_loss(results,yl,resultsv,yvl) 
+           
         p_train = self.classify(X,y)
         p_valid = self.classify(Xv,yv)
 
@@ -290,22 +304,42 @@ class OneVsAllClassifier:
         acc_valid = acc_valid/len(yvl)
 
         if printacc:     
-            confusion_matrix = np.zeros((10,10))
-            for j in range(0,len(p_valid)): 
-                confusion_matrix[np.asscalar(yvl[j])][np.asscalar(p_valid[j])] += 1  
-            print("Acc treino: "+str(acc_train))        
-            print("Acc valid: "+str(acc_valid))
+            self.print_results(experiment,yvl,p_valid,yl,p_train.tolist(),True)
 
-            print("Loss: "+str(self.valid_loss[-1]))
+        return self.valid_loss
 
-            df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
-            plt.figure(figsize = (10,7))
-            plt.xlabel('Predict')
-            plt.ylabel('Real')
-            sn.heatmap(df_cm, annot=True, cmap="Blues")
-            plt.savefig(experiment+'_confusion_matrix.png')
+    def print_results(self,experiment,yvl,p_valid,yl=None,p_train=None,print_iter=False):
+        acc_train = 0
+        acc_valid = 0
+        if(p_train != None):
+            for i in range(len(yl)):
+                if p_train[i] == yl[i]:
+                    acc_train+=1
+            acc_train = acc_train/len(yl)  
+            print("Acc treino: "+str(acc_train))  
+            
+        for i in range(len(yvl)):
+            if p_valid[i] == yvl[i]:
+                acc_valid+=1
+        acc_valid = acc_valid/len(yvl)
+        
+        confusion_matrix = np.zeros((10,10))
+        for j in range(0,len(p_valid)):
+            confusion_matrix[yvl[j][0]][p_valid[j]] += 1  
+            
+        
+        print("Acc valid: "+str(acc_valid))
+        print("Loss: "+str(self.valid_loss[-1]))
 
-            plt.figure(1)
+        df_cm = pd.DataFrame(confusion_matrix, index = [i for i in "0123456789"], columns = [i for i in "0123456789"])
+        plt.figure(figsize = (10,7))
+        ax = sn.heatmap(df_cm, annot=True, cmap="Blues", fmt='g')
+        ax.set(xlabel='Predicted', ylabel='Real')
+        plt.savefig(experiment+'_confusion_matrix.png')
+        plt.show()
+        plt.close()
+        if print_iter:
+            plt.figure(1)       
             plt.subplot(211)
             plt.plot( range(0,len(self.train_loss)), self.train_loss, 'r-', label='Train')
             plt.ylabel('Cost')
@@ -315,16 +349,23 @@ class OneVsAllClassifier:
             plt.xlabel('Iterations')
             plt.legend()
             plt.savefig(experiment+'_training.png')
-
-        return self.valid_loss
-
+            plt.show()
+        return 
+    
+    
     def classify(self,X,y,raw=False):
         probs = [];
         for i in range(self.classes):
             probs.append(self.neural_net[i].predict_prob(X,y))
+        preds = np.argmax(probs,axis=0)  
+        res = np.zeros(len(preds))      
+        for i in range(len(preds)):
+            res[i] = int(preds[i][0])
+        res = res.astype(int)
+
         if raw:
             return np.array(probs)
-        return np.argmax(probs,axis=0)
+        return res
     def classSingle(self,x,y,id):
         bstp = -1
         cl = -1
