@@ -8,11 +8,9 @@ import get_dataset
 import sys
 
 
-
 ##
 ## REDE NEURAL COM UMA CAMADA ESCONDIDA
 ##
-
 
 def new_neuralnet(train_set):
     neural_net = NeuralNetwork()

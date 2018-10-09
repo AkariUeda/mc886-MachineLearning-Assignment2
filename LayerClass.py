@@ -34,7 +34,6 @@ class NeuralNetwork:
         self.train_loss = []
         self.valid_loss = []
         network = np.load(nn)
-        print(network.shape)
         weights = network[0]
         functions = network[1]
         derivatives = network[2]
@@ -153,7 +152,7 @@ class NeuralNetwork:
             p_valid.extend(np.argmax(pv, axis=1))
             if self.best_cost == -1 or self.best_cost > self.valid_loss[i]:
                 self.best_cost = self.valid_loss[i]
-                self.best_model = self.model_to_list()
+                self.model_to_list()
         if(len(self.train_loss) != iteracoes and iteracoes != 1):
             self.train_loss = np.mean(np.array(self.train_loss).reshape(-1,lim),axis=1).tolist()
 

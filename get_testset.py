@@ -26,8 +26,6 @@ def main():
     train_labels = np.genfromtxt('fashion-mnist_train-labels.csv', delimiter=',')[:,1]
     test_labels = np.genfromtxt('fashion-mnist_test-labels.csv', delimiter=',')
 
-    print(test_set.shape)
-    print(test_set[0:3])
     print("Dataset carregado com sucesso")
 
     train_set = train_set.astype(int)

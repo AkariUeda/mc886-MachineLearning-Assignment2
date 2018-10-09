@@ -13,7 +13,6 @@ import sys
 
 def main():
     modelo = sys.argv[1]
-    print(modelo)
     test_set, test_labels = get_testset.main()
     X = test_set
     y = test_labels
@@ -21,7 +20,7 @@ def main():
     #print("Vamos fazer one vs all no toy set!")
     cl = NeuralNetwork()
     cl.load_model(modelo)
-    cl.get_results(X,y,"exp5-teste")
+    cl.get_results(X,y,"exp6_teste")
 
 if __name__ == "__main__":
     main()
